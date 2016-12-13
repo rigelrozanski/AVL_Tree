@@ -9,6 +9,8 @@
 package AvlTree
 
 import (
+	"bytes"
+
 	"github.com/tendermint/go-db"
 )
 
@@ -51,18 +53,43 @@ func (n *AVLNode) findPosition(searchKey []byte) (match bool, nodePtr *AVLNode) 
 	}
 }
 
-func balance() int {
+//find either the minimum or maximum sub node key value
+func (n *AVLNode) findExtremum(min bool) *AVLNode {
+	if min {
+		//calling recursively within these function variables
+		// should be slighly more efficient then calling the
+		// whole function because it avoids checking min
+		iterateLT := func(n2 *AVLNode) *AVLNode {
+			if n2.LTNode == nil {
+				return n2
+			}
+			return iterateLT(n2.LTNode)
+		}
+
+		return iterateLT(n)
+
+	} else {
+		iterateGT := func(n2 *AVLNode) *AVLNode {
+			if n2.GTNode == nil {
+				return n2
+			}
+			return iterateGT(n2.GTNode)
+		}
+
+		return iterateGT(n)
+	}
+}
+
+func (n *AVLNode) balance() int {
 	return (GTnode.Height - LTnode.Height)
 }
 
-func compareKey(src, dest []byte) int {
-	return bytes.Compare(src, dest)
-}
-
-func Rotate(left bool) {
+//Perform either a left or right rotation
+func (n *AVLNode) Rotate(left bool) {
 
 }
 
-func RotateDouble(leftRight bool) {
+//Perform either a left-right, or right-left rotation
+func (n *AVLNode) RotateDouble(leftRight bool) {
 
 }
