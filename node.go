@@ -13,23 +13,32 @@ import (
 )
 
 type AVLNode struct {
-	key []byte
-	value []byte
-	height int
-	balance int
+	Key    []byte   //node key
+	Value  []byte   //node value
+	Height int      //
+	LTnode *AVLnode //"Left Node" node with key less than current node
+	GTnode *AVLNode //"Right Node" node with key greater than current node
 }
 
-func NewAVLTree(
-	cacheSize int,
-	db dbm.DB,
-	dBName string) AVLTree {
+func NewAVLLeaf(
+	key,
+	value []byte) AVLNode {
 
-	return AVLTree{
-		trunk:     NewAVLNode,
-		cacheSize: cacheSize,
-		db:        db,
-		dBName:    dBName,
-	}
+	return AVLNode{}
 }
 
-func Rotate(
+func balance() int {
+	return (GTnode.Height - LTnode.Height)
+}
+
+func compareKey(src, dest []byte) int {
+	return bytes.Compare(src, dest)
+}
+
+func Rotate(left bool) {
+
+}
+
+func RotateDouble(leftRight bool) {
+
+}

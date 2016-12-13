@@ -29,9 +29,4 @@ func TestAVLTREE() {
 	//Test removing saved values from the tree
 
 	//Test retrieval of saved values
-
-	//Test generating the Merkle Hash
-
-	//Add a new record and test to make sure the root hash changes
-
 }

@@ -13,22 +13,13 @@ import (
 )
 
 type AVLTree struct {
-	trunk     *AVLNode
-	cacheSize int
-	db        dbm.DB
-	dBName    string
+	trunk *AVLNode
 }
 
-func NewAVLTree(
-	cacheSize int,
-	db dbm.DB,
-	dBName string) AVLTree {
+func NewAVLTree() AVLTree {
 
 	return AVLTree{
-		trunk:     NewAVLNode,
-		cacheSize: cacheSize,
-		db:        db,
-		dBName:    dBName,
+		trunk: nil,
 	}
 }
 
@@ -53,8 +44,4 @@ func (tree *AVLTree) Update(key []byte, value []byte) error {
 
 func (tree *AVLTree) Remove(key []byte) error {
 	return nil
-}
-
-func (tree *AVLTREE) Hash() []byte {
-	return []byte("dummy")
 }
