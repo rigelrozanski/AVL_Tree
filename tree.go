@@ -9,7 +9,6 @@
 package AvlTree
 
 import (
-	"bytes"
 	"errors"
 
 	"github.com/tendermint/go-db"
@@ -28,7 +27,7 @@ func NewAVLTree() AVLTree {
 
 func (t *AVLTree) Get(key []byte) (value []byte, err error) {
 
-	match, matchNode := t.trunk.findPosition(key)
+	match, matchNode, _ := t.trunk.findPosition(key)
 
 	if !match {
 		err = errors.New("key not found")
@@ -41,7 +40,7 @@ func (t *AVLTree) Get(key []byte) (value []byte, err error) {
 
 func (t *AVLTree) Update(key []byte, value []byte) (err error) {
 
-	match, matchNode := t.trunk.findPosition(key)
+	match, matchNode, _ := t.trunk.findPosition(key)
 
 	if !match {
 		err = errors.New("key not found")
@@ -55,15 +54,17 @@ func (t *AVLTree) Update(key []byte, value []byte) (err error) {
 
 func (t *AVLTree) Add(key []byte, value []byte) (err error) {
 
-	match, matchNode := t.trunk.findPosition(key)
+	match, matchNode, parNode := t.trunk.findPosition(key)
 
 	if match {
 		err = errors.New("duplicate key found")
 	} else {
-		matchNode = &NewAVLLeaf(key, value)
+		matchNode = NewAVLLeaf(parNode, key, value)
 	}
 
-	//TODO perform balancing operations, update heights
+	//Update heights
+	matchNode.updateHeightRecursive()
+	matchNode.updateBalanceRecursive()
 
 	return
 }
@@ -76,12 +77,12 @@ func (t *AVLTree) Remove(key []byte) (err error) {
 		err = errors.New("key not found")
 		return
 	} else {
-		//if leaf node being deleted, just delete it
+		//If leaf node being deleted, just delete it
 		if &matchNode.Height == 0 {
 			matchNode = nil
 		} else {
 
-			//if there is only one branch off of node to delete
+			//If there is only one branch off of node to delete
 			//  then replace node with one branch node
 			if &matchNode.GTnode == nil {
 				matchNode = matchNode.LTnode
@@ -89,7 +90,7 @@ func (t *AVLTree) Remove(key []byte) (err error) {
 				matchNode = matchNode.GTnode
 			}
 
-			//if there are two branches off of node to delete
+			//If there are two branches off of node to delete
 			//  determine the longest sub branch and on that branch
 			//  replace the node; with the greatest (rightmost) key down-branch
 			//  if the longest branch is the smallest (leftmost) branch,
@@ -98,23 +99,24 @@ func (t *AVLTree) Remove(key []byte) (err error) {
 			//  if the branches are balanced, use the greatest (rightmost) branch
 			//Methodology inspired by: http://www.mathcs.emory.edu/~cheung/Courses/323/Syllabus/Trees/AVL-delete.html
 
-			//first determine the direction to replace from
+			//First determine the direction to replace from
 			replaceFromRight := (matchNode.balance() >= 0)
 			replaceFromNode := matchNode.findExtremum(replaceFromRight) // if replacing from the the right, then looking from the minimum
 
-			//temporarily save the replacement key and value, delete its original position
-			replaceKey := *replaceFromNode.Key
-			replaceValue := *replaceFromNode.Value
-			t.Remove(replaceKey)
+			//Temporarily save the replacement key and value, delete its original position
+			replaceFromKey := *replaceFromNode.Key
+			replaceFromValue := *replaceFromNode.Value
+			t.Remove(replaceKey) //TODO verify that this wont create pointer problems based the fact that a rebalance will occur
 
-			//now replace the key and value for the target node to delete
+			//Now replace the key and value for the target node to delete
 			// the branches of this node to stay the same
-			*matchNode.Key = replaceKey
-			*matchNode.Value = replaceValue
+			*matchNode.Key = replaceFromKey
+			*matchNode.Value = replaceFromValue
 		}
 	}
 
-	//TODO perform balancing operations, update heights
+	//Update heights and balance
+	t.trunk.updateBalanceAndHeight()
 
 	return
 }

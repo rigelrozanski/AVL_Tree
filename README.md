@@ -1,6 +1,6 @@
 # AVLTREE
 
-_Rudimentary AVL tree implementation as a tendermint hiring task_
+_Rudimentary AVL tree library implementation as a tendermint hiring task_
 
 ---
 
