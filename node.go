@@ -113,7 +113,16 @@ func (n *AVLNode) updateHeight() {
 	n.Height = maxHeight + 1
 }
 
-func (n *AVLNode) balance() int {
+//currently only used for testing purposes
+func (n *AVLNode) updateHeightRecursive() {
+	if n == nil {
+		return
+	}
+	n.updateHeight()
+	n.ParNode.updateHeightRecursive()
+}
+
+func (n *AVLNode) getBalance() int {
 
 	RightHeight := 0
 	LeftHeight := 0
@@ -130,18 +139,18 @@ func (n *AVLNode) balance() int {
 }
 
 func (n *AVLNode) updateBalance() {
-	bal := n.balance()
+	bal := n.getBalance()
 
 	switch {
 	case bal > 1:
-		if n.RightNode.balance() > 0 { //Left Left Rotation
+		if n.RightNode.getBalance() > 0 { //Left Left Rotation
 			n.rotateLeft()
 		} else { //Right Left Rotation
 			n.RightNode.rotateRight()
 			n.rotateLeft()
 		}
 	case bal < -1:
-		if n.LeftNode.balance() < 0 { //Right Right Rotation
+		if n.LeftNode.getBalance() < 0 { //Right Right Rotation
 			n.rotateRight()
 		} else { //Left Right Rotation
 			n.LeftNode.rotateLeft()
@@ -155,20 +164,12 @@ func (n *AVLNode) updateBalance() {
 // this will allow the tree to be balanced in the most
 // compact way
 func (n *AVLNode) updateHeightBalanceRecursive() {
-	if n != nil {
+	if n == nil {
 		return
 	}
 	n.updateHeight()
 	n.updateBalance()
 	n.ParNode.updateHeightBalanceRecursive()
-}
-
-func (n *AVLNode) updateHeightRecursive() {
-	if n != nil {
-		return
-	}
-	n.updateHeight()
-	n.ParNode.updateHeightRecursive()
 }
 
 func (n *AVLNode) rotateLeft() {

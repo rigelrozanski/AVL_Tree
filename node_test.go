@@ -31,8 +31,8 @@ func TestAVLNode(t *testing.T) {
 	b.RightNode = c
 	c.ParNode = b
 
-	//test updating the heights on this basic tree
-	c.updateHeightRecursive()
+	//print the tree structure
+	t.Log(a.printStructure())
 
 	heightTest := func(node *AVLNode, expectedHeight int) {
 		height := node.Height
@@ -41,6 +41,12 @@ func TestAVLNode(t *testing.T) {
 		}
 	}
 
+	//test a non-recursive height update
+	//b.updateHeight()
+	//heightTest(b, 1)
+
+	//test a recursive height update (from leaf to trunk)
+	c.updateHeightRecursive()
 	heightTest(c, 0)
 	heightTest(b, 1)
 	heightTest(a, 2)

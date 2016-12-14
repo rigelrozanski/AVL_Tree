@@ -107,7 +107,7 @@ func (t *AVLTree) Remove(key []byte) error {
 
 		//Determine the direction to replace, and node to switch from
 		var replaceFromNode *AVLNode
-		if matchNode.balance() >= 0 {
+		if matchNode.getBalance() >= 0 {
 			replaceFromNode = matchNode.findMin()
 		} else {
 			replaceFromNode = matchNode.findMax()
