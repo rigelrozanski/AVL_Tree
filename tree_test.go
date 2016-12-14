@@ -13,7 +13,7 @@ import (
 	"testing"
 )
 
-func TestAVLTREE(t *testing.T) {
+func TestAVLTree(t *testing.T) {
 
 	printErr := func(err error) {
 		if err != nil {
@@ -26,6 +26,7 @@ func TestAVLTREE(t *testing.T) {
 
 	//Test adding several values to the AVL Tree
 	//  at the same time test how the heights of the tree react
+
 	heightTest := func(expectedHeight int) {
 		height := tree.trunk.Height
 		if height != expectedHeight {
@@ -33,7 +34,7 @@ func TestAVLTREE(t *testing.T) {
 		}
 	}
 
-	//some expected tree forms:
+	//Expected tree structures:
 	// a   a   b      b       b       d      d
 	//    /   / \    / \     / \     / \    / \
 	//   b   a   c  a   c   a   d   b   e  c   e
@@ -50,6 +51,7 @@ func TestAVLTREE(t *testing.T) {
 	heightTest(2)
 	printErr(tree.Add([]byte("e"), []byte("vE")))
 	heightTest(2)
+	t.Log(tree.trunk.printStructure())
 
 	//Test retrieving saved values
 	retrieveTest := func(key, expectedVal string, expectedExists bool) {

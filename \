@@ -163,14 +163,6 @@ func (n *AVLNode) updateHeightBalanceRecursive() {
 	n.ParNode.updateHeightBalanceRecursive()
 }
 
-func (n *AVLNode) updateHeightRecursive() {
-	if n != nil {
-		return
-	}
-	n.updateHeight()
-	n.ParNode.updateHeightRecursive()
-}
-
 func (n *AVLNode) rotateLeft() {
 
 	//Original right node moving up during rotation
@@ -203,32 +195,31 @@ func (n *AVLNode) rotateRight() {
 	n.ParNode = nodeUp
 }
 
-//used for testing purposes
 //recursively add all the downstream
-func (n *AVLNode) printStructure() (out string) {
+func (n *AVLNode) printDownstream() (out string) {
 
-	parKey, leftKey, rightKey := "nil", "nil", "nil"
+	key
 
-	if n.ParNode != nil {
-		parKey = string(n.ParNode.Key[:])
+	if n.LeftNode != nil {
+		out += n.LeftNode.printDownstream()
+		leftKey += string(n.LeftNode.Key[:])
 	}
 
 	if n.LeftNode != nil {
-		out += n.LeftNode.printStructure()
-		leftKey = string(n.LeftNode.Key[:])
+		out += n.LeftNode.printDownstream()
+		leftKey += string(n.LeftNode.Key[:])
 	}
 
 	if n.RightNode != nil {
-		out += n.RightNode.printStructure()
-		rightKey = string(n.RightNode.Key[:])
+		out += n.RightNode.printDownstream()
+		rightKey += string(n.RightNode.Key[:])
 	}
 
 	out += "key: " + string(n.Key[:]) +
-		" value: " + string(n.Value[:]) +
-		" parent: " + parKey +
-		" leftChild: " + leftKey +
-		" rightChild: " + rightKey +
-		"\n"
+	" value: " + strigng(n.Value[:] +
+		" parent: " + n.Value +
+		" leftChild: " + n.Value +
+		" rightChild: " + n.Value
 
 	return
 }
