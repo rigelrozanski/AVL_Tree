@@ -148,17 +148,17 @@ func (n *AVLNode) updateBalance() {
 	switch {
 	case bal > 1:
 		if n.RightNode.getBalance() > 0 { //Left Left Rotation
-			n.rotateLeft()
+			n.rotate(true) //rotateLeft
 		} else { //Right Left Rotation
-			n.RightNode.rotateRight()
-			n.rotateLeft()
+			n.RightNode.rotate(false) //rotateRight
+			n.rotate(true)
 		}
 	case bal < -1:
 		if n.LeftNode.getBalance() < 0 { //Right Right Rotation
-			n.rotateRight()
+			n.rotate(false)
 		} else { //Left Right Rotation
-			n.LeftNode.rotateLeft()
-			n.rotateRight()
+			n.LeftNode.rotate(true)
+			n.rotate(false)
 		}
 
 	}
@@ -196,6 +196,9 @@ func (n *AVLNode) rotateLeft() {
 	nodeUp.LeftNode = n
 	n.ParNode = nodeUp
 
+	n.updateHeight()
+	nodeUp.updateHeight()
+
 	return
 }
 
@@ -213,6 +216,33 @@ func (n *AVLNode) rotateRight() {
 	//old parent node becomes lower right child of old left node
 	nodeUp.RightNode = n
 	n.ParNode = nodeUp
+
+	return
+}
+
+//rotate function used by rotateRight/Left
+func (n *AVLNode) rotate(left bool) {
+
+	var nodeUp *AVLNode
+
+	//old parent takes owernership of left nodes right child as its left child
+	if left {
+		nodeUp := n.RightNode
+		n.RightNode = nodeUp.LeftNode
+		nodeUp.LeftNode = n
+	} else {
+		nodeUp := n.LeftNode
+		n.LeftNode = nodeUp.RightNode
+		nodeUp.RightNode = n
+	}
+
+	//parent swap
+	nodeUp.ParNode = n.ParNode
+	n.ParNode = nodeUp
+
+	//update effected heights
+	n.updateHeight()
+	nodeUp.updateHeight()
 
 	return
 }
