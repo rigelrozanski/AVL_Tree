@@ -44,20 +44,40 @@ func NewAVLLeaf(
 }
 
 //return the node position of either the matching node or the locatation to place a node
-func (n *AVLNode) findPosition(searchKey []byte) (match bool, position, parent *AVLNode) {
+func (n *AVLNode) findPosition(searchKey []byte) (match bool, position *AVLNode) {
 
 	if n == nil {
-		return false, n, n.ParNode //parent is set to nil if the trunk node
+		return false, n //parent is set to nil if the trunk node
 	}
 
 	//The result will be 0 if a==b, -1 if a < b, and +1 if a > b
 	switch bytes.Compare(searchKey, n.Key) {
 	case 0:
-		return true, n, n.ParNode
+		return true, n
 	case -1:
-		return n.LeftNode.findPosition(searchKey)
+		return n.LeftNode.findPosition(searchKey) //send a reference to the parent node down for returning
 	case 1:
 		return n.RightNode.findPosition(searchKey)
+	}
+
+	return
+}
+
+//return the node position of either the matching node or the locatation to place a node
+func (n *AVLNode) findPositionAndParent(searchKey []byte, parNodeIn *AVLNode) (match bool, position, parNode *AVLNode) {
+
+	if n == nil {
+		return false, n, parNodeIn //parent is set to nil if the trunk node
+	}
+
+	//The result will be 0 if a==b, -1 if a < b, and +1 if a > b
+	switch bytes.Compare(searchKey, n.Key) {
+	case 0:
+		return true, n, parNodeIn
+	case -1:
+		return n.LeftNode.findPositionAndParent(searchKey, n) //send a reference to the parent node down for returning
+	case 1:
+		return n.RightNode.findPositionAndParent(searchKey, n)
 	}
 
 	return

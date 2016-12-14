@@ -25,7 +25,7 @@ func NewAVLTree() AVLTree {
 
 func (t *AVLTree) Get(key []byte) (value []byte, err error) {
 
-	match, matchNode, _ := t.trunk.findPosition(key)
+	match, matchNode := t.trunk.findPosition(key)
 
 	if !match {
 		err = errors.New("key not found")
@@ -38,7 +38,7 @@ func (t *AVLTree) Get(key []byte) (value []byte, err error) {
 
 func (t *AVLTree) Update(key []byte, value []byte) (err error) {
 
-	match, matchNode, _ := t.trunk.findPosition(key)
+	match, matchNode := t.trunk.findPosition(key)
 
 	if !match {
 		err = errors.New("key not found")
@@ -52,7 +52,11 @@ func (t *AVLTree) Update(key []byte, value []byte) (err error) {
 
 func (t *AVLTree) Add(key []byte, value []byte) (err error) {
 
-	match, matchNode, parNode := t.trunk.findPosition(key)
+	match, matchNode, parNode := t.trunk.findPositionAndParent(key, nil)
+
+	if t.trunk == nil {
+		parNode = nil
+	}
 
 	if match {
 		err = errors.New("duplicate key found")
@@ -68,7 +72,7 @@ func (t *AVLTree) Add(key []byte, value []byte) (err error) {
 
 func (t *AVLTree) Remove(key []byte) (err error) {
 
-	match, matchNode, _ := t.trunk.findPosition(key)
+	match, matchNode := t.trunk.findPosition(key)
 
 	if !match {
 		err = errors.New("key not found")
