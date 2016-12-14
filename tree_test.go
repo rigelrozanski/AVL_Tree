@@ -25,26 +25,36 @@ func TestAVLTREE(t *testing.T) {
 	tree := NewAVLTree()
 
 	//Test adding several values to the AVL Tree
-	printErr(tree.Add([]byte("keyOne"), []byte("valueOne")))
-	printErr(tree.Add([]byte("keyTwo"), []byte("valueTwo")))
-	//printErr(tree.Add([]byte("keyThree"), []byte("valueThree")))
-	//printErr(tree.Add([]byte("keyFour"), []byte("valueFour")))
+	//  at the same time test how the heights of the tree react
+	heightTest := func(expectedHeight int) {
+		height := tree.trunk.Height
+		if height != expectedHeight {
+			t.Errorf("bad height, expected %v found %v ", expectedHeight, height)
+		}
+	}
 
-	trunkNil := (tree.trunk == nil)
-	t.Log(trunkNil)
+	printErr(tree.Add([]byte("keyOne"), []byte("valueOne")))
+	heightTest(0)
+	printErr(tree.Add([]byte("keyTwo"), []byte("valueTwo")))
+	heightTest(1)
+	printErr(tree.Add([]byte("keyThree"), []byte("valueThree")))
+	heightTest(1)
+	printErr(tree.Add([]byte("keyFour"), []byte("valueFour")))
+	heightTest(2)
 
 	//Test retrieving saved values
-	val1, err1 := tree.Get([]byte("keyOne"))
-	printErr(err1)
-	if bytes.Compare(val1, []byte("valueOne")) != 0 {
-		t.Errorf("bad expected valueOne recieved " + string(val1[:]))
+	retrieveTest := func(key, expectedVal string) {
+		recievedVal, err := tree.Get([]byte(key))
+		printErr(err)
+		if bytes.Compare(recievedVal, []byte(expectedVal)) != 0 {
+			t.Errorf("bad expected %v recieved %v ", expectedVal, string(recievedVal[:]))
+		}
 	}
 
-	val2, err2 := tree.Get([]byte("keyTwo"))
-	printErr(err2)
-	if bytes.Compare(val2, []byte("valueTwo")) != 0 {
-		t.Errorf("bad expected valueTwo recieved " + string(val2[:]))
-	}
+	retrieveTest("keyOne", "valueOne")
+	retrieveTest("keyTwo", "valueTwo")
+	retrieveTest("keyThree", "valueThree")
+	retrieveTest("keyFour", "valueFour")
 
 	//Test adding a duplicate value
 
