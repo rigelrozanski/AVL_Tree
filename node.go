@@ -158,19 +158,32 @@ func (n *AVLNode) updateBalanceRecursive() {
 
 func (n *AVLNode) rotateLeft() {
 
+	//Original right node moving up during rotation
+	nodeUp := n.RightNode
+
 	//new parent takes on old parent's parent
-	n.RightNode.ParNode = n.ParNode
+	nodeUp.ParNode = n.ParNode
 
 	//old parent takes owernership of right nodes left child as its right child
-	n.RightNode = n.RightNode.LeftNode
+	n.RightNode = nodeUp.LeftNode
 
 	//old parent node becomes lower left child of old right node
-	n.RightNode.LeftNode = n
-	n.ParNode = n.RightNode
+	nodeUp.LeftNode = n
+	n.ParNode = nodeUp
 }
 
 func (n *AVLNode) rotateRight() {
-	n.LeftNode.ParNode = n.ParNode
-	n.ParNode = n.LeftNode
-	n.LeftNode = nil
+
+	//Original left node moving up during rotation
+	nodeUp := n.LeftNode
+
+	//new parent takes on old parent's parent
+	nodeUp.ParNode = n.ParNode
+
+	//old parent takes owernership of left nodes right child as its left child
+	n.LeftNode = nodeUp.RightNode
+
+	//old parent node becomes lower right child of old left node
+	nodeUp.RightNode = n
+	n.ParNode = nodeUp
 }
