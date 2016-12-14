@@ -6,12 +6,10 @@
 // /_/    \_\/   |______|    |_|  |_|  \_\______|______|
 //
 
-package AvlTree
+package AVL_Tree
 
 import (
 	"bytes"
-
-	"github.com/tendermint/go-db"
 )
 
 type AVLNode struct {
@@ -35,7 +33,7 @@ func NewAVLLeaf(
 	key,
 	value []byte) *AVLNode {
 
-	return AVLNode{
+	return &AVLNode{
 		Key:       key,
 		Value:     value,
 		Height:    0,
@@ -53,7 +51,7 @@ func (n *AVLNode) findPosition(searchKey []byte) (match bool, position, parent *
 	}
 
 	//The result will be 0 if a==b, -1 if a < b, and +1 if a > b
-	switch bytes.Compare(searchKey, *n.key) {
+	switch bytes.Compare(searchKey, n.Key) {
 	case 0:
 		return true, n, n.ParNode
 	case -1:
@@ -61,33 +59,22 @@ func (n *AVLNode) findPosition(searchKey []byte) (match bool, position, parent *
 	case 1:
 		return n.RightNode.findPosition(searchKey)
 	}
+
+	return
 }
 
-//find either the minimum or maximum sub node key value
-func (n *AVLNode) findExtremum(min bool) *AVLNode {
-	if min {
-		//calling recursively within these function variables
-		// should be slighly more efficient then calling the
-		// whole function because it avoids checking min
-		iterateLeft := func(n2 *AVLNode) *AVLNode {
-			if n2.LeftNode == nil {
-				return n2
-			}
-			return iterateLeft(n2.LeftNode)
-		}
-
-		return iterateLeft(n)
-
-	} else {
-		iterateRight := func(n2 *AVLNode) *AVLNode {
-			if n2.RightNode == nil {
-				return n2
-			}
-			return iterateRight(n2.RightNode)
-		}
-
-		return iterateRight(n)
+func (n *AVLNode) findMin() *AVLNode {
+	if n.LeftNode == nil {
+		return n
 	}
+	return n.LeftNode.findMin()
+}
+
+func (n *AVLNode) findMax() *AVLNode {
+	if n.RightNode == nil {
+		return n
+	}
+	return n.RightNode.findMax()
 }
 
 //updates the height of the current node
@@ -96,14 +83,14 @@ func (n *AVLNode) updateHeight() {
 	maxHeight := -1
 
 	if n.LeftNode != nil {
-		maxHeight = *n.LeftNode.Height
+		maxHeight = n.LeftNode.Height
 	}
 
-	if n.RightNode != nil && *n.RightNode.Height > maxHeight {
-		maxHeight = *n.RightNode.Height
+	if n.RightNode != nil && n.RightNode.Height > maxHeight {
+		maxHeight = n.RightNode.Height
 	}
 
-	*n.Height = maxHeight + 1
+	n.Height = maxHeight + 1
 }
 
 func (n *AVLNode) balance() int {
@@ -112,29 +99,29 @@ func (n *AVLNode) balance() int {
 	LeftHeight := 0
 
 	if n.RightNode != nil {
-		RightHeight = *n.RightNode.Height
+		RightHeight = n.RightNode.Height
 	}
 
 	if n.LeftNode != nil {
-		LeftHeight = *n.LeftNode.Height
+		LeftHeight = n.LeftNode.Height
 	}
 
 	return RightHeight - LeftHeight
 }
 
 func (n *AVLNode) updateBalance() {
-	bal = n.balance()
+	bal := n.balance()
 
 	switch {
 	case bal > 1:
-		if *n.RightNode.balance() > 0 { //Left Left Rotation
+		if n.RightNode.balance() > 0 { //Left Left Rotation
 			n.rotateLeft()
 		} else { //Right Left Rotation
 			n.RightNode.rotateRight()
 			n.rotateLeft()
 		}
 	case bal < -1:
-		if *n.LeftNode.balance() < 0 { //Right Right Rotation
+		if n.LeftNode.balance() < 0 { //Right Right Rotation
 			n.rotateRight()
 		} else { //Left Right Rotation
 			n.LeftNode.rotateLeft()
@@ -147,13 +134,13 @@ func (n *AVLNode) updateBalance() {
 //update the height and  balances from the area of action upwards
 // this will allow the tree to be balanced in the most
 // compact way
-func (n *AVLNode) updateBalanceRecursive() {
+func (n *AVLNode) updateHeightBalanceRecursive() {
 	if n != nil {
 		return
 	}
 	n.updateHeight()
 	n.updateBalance()
-	n.ParNode.updateBalanceRecursive()
+	n.ParNode.updateHeightBalanceRecursive()
 }
 
 func (n *AVLNode) rotateLeft() {

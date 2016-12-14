@@ -6,12 +6,10 @@
 // /_/    \_\/   |______|    |_|  |_|  \_\______|______|
 //
 
-package AvlTree
+package AVL_Tree
 
 import (
 	"errors"
-
-	"github.com/tendermint/go-db"
 )
 
 type AVLTree struct {
@@ -45,7 +43,7 @@ func (t *AVLTree) Update(key []byte, value []byte) (err error) {
 	if !match {
 		err = errors.New("key not found")
 	} else {
-		*matchNode.Value = value
+		matchNode.Value = value
 	}
 
 	return
@@ -70,14 +68,14 @@ func (t *AVLTree) Add(key []byte, value []byte) (err error) {
 
 func (t *AVLTree) Remove(key []byte) (err error) {
 
-	match, matchNode := t.trunk.findPosition(key)
+	match, matchNode, _ := t.trunk.findPosition(key)
 
 	if !match {
 		err = errors.New("key not found")
 		return
 	} else {
 		//If leaf node being deleted, just delete it
-		if &matchNode.Height == 0 {
+		if matchNode.Height == 0 {
 			matchNode = nil
 		} else {
 
@@ -98,19 +96,23 @@ func (t *AVLTree) Remove(key []byte) (err error) {
 			//  if the branches are balanced, use the greatest (rightmost) branch
 			//Methodology inspired by: http://www.mathcs.emory.edu/~cheung/Courses/323/Syllabus/Trees/AVL-delete.html
 
-			//First determine the direction to replace from
-			replaceFromRight := (matchNode.balance() >= 0)
-			replaceFromNode := matchNode.findExtremum(replaceFromRight) // if replacing from the the right, then looking from the minimum
+			//Determine the direction to replace, and node to switch from
+			var replaceFromNode *AVLNode
+			if matchNode.balance() >= 0 {
+				replaceFromNode = matchNode.findMin()
+			} else {
+				replaceFromNode = matchNode.findMax()
+			}
 
 			//Temporarily save the replacement key and value, delete its original position
-			replaceFromKey := *replaceFromNode.Key
-			replaceFromValue := *replaceFromNode.Value
-			t.Remove(replaceKey) //TODO verify that this wont create pointer problems based the fact that a rebalance will occur
+			replaceFromKey := replaceFromNode.Key
+			replaceFromValue := replaceFromNode.Value
+			t.Remove(replaceFromKey) //TODO verify that this wont create pointer problems based the fact that a rebalance will occur
 
 			//Now replace the key and value for the target node to delete
 			// the branches of this node to stay the same
-			*matchNode.Key = replaceFromKey
-			*matchNode.Value = replaceFromValue
+			matchNode.Key = replaceFromKey
+			matchNode.Value = replaceFromValue
 		}
 	}
 

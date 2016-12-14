@@ -1,4 +1,4 @@
-package tree
+package AVL_Tree
 
 type Tree interface {
 	Get(key []byte) (value []byte, err error)

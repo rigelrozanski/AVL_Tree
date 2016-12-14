@@ -6,7 +6,7 @@
 // /_/    \_\/   |______|    |_|  |_|  \_\______|______|
 //
 
-package AvlTree
+package AVL_Tree
 
 import (
 	"testing"
@@ -14,7 +14,8 @@ import (
 
 func TestAVLTREE() {
 
-	//first create the AVL tree to be tested with
+	//First create the AVL tree to be tested with
+	//tree := NewAVLTree()
 
 	//Test adding several values to the AVL Tree
 
