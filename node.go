@@ -15,12 +15,12 @@ import (
 )
 
 type AVLNode struct {
-	Key     []byte   //node key
-	Value   []byte   //node value
-	Height  int      //
-	ParNode *AVLNode //Parent AVL node
-	LTNode  *AVLNode //"Left Node" node with key less than current node
-	GTNode  *AVLNode //"Right Node" node with key greater than current node
+	Key       []byte   //node key
+	Value     []byte   //node value
+	Height    int      //
+	ParNode   *AVLNode //Parent AVL node
+	LeftNode  *AVLNode //Left node with key less than current node
+	RightNode *AVLNode //Right node with key greater than current node
 }
 
 func NewAVLTrunk(
@@ -31,17 +31,17 @@ func NewAVLTrunk(
 }
 
 func NewAVLLeaf(
-	parent *AVLNode,
+	parNode *AVLNode,
 	key,
 	value []byte) *AVLNode {
 
 	return AVLNode{
-		Key:     key,
-		Value:   value,
-		Height:  0,
-		ParNode: parent,
-		LTnode:  nil,
-		GTnode:  nil,
+		Key:       key,
+		Value:     value,
+		Height:    0,
+		ParNode:   parNode,
+		LeftNode:  nil,
+		RightNode: nil,
 	}
 }
 
@@ -57,9 +57,9 @@ func (n *AVLNode) findPosition(searchKey []byte) (match bool, position, parent *
 	case 0:
 		return true, n, n.ParNode
 	case -1:
-		return n.LTnode.findPosition(searchKey)
+		return n.LeftNode.findPosition(searchKey)
 	case 1:
-		return n.GTnode.findPosition(searchKey)
+		return n.RightNode.findPosition(searchKey)
 	}
 }
 
@@ -69,24 +69,24 @@ func (n *AVLNode) findExtremum(min bool) *AVLNode {
 		//calling recursively within these function variables
 		// should be slighly more efficient then calling the
 		// whole function because it avoids checking min
-		iterateLT := func(n2 *AVLNode) *AVLNode {
-			if n2.LTNode == nil {
+		iterateLeft := func(n2 *AVLNode) *AVLNode {
+			if n2.LeftNode == nil {
 				return n2
 			}
-			return iterateLT(n2.LTNode)
+			return iterateLeft(n2.LeftNode)
 		}
 
-		return iterateLT(n)
+		return iterateLeft(n)
 
 	} else {
-		iterateGT := func(n2 *AVLNode) *AVLNode {
-			if n2.GTNode == nil {
+		iterateRight := func(n2 *AVLNode) *AVLNode {
+			if n2.RightNode == nil {
 				return n2
 			}
-			return iterateGT(n2.GTNode)
+			return iterateRight(n2.RightNode)
 		}
 
-		return iterateGT(n)
+		return iterateRight(n)
 	}
 }
 
@@ -95,59 +95,82 @@ func (n *AVLNode) updateHeight() {
 
 	maxHeight := -1
 
-	if n.LTnode != nil {
-		maxHeight = *n.LTnode.Height
+	if n.LeftNode != nil {
+		maxHeight = *n.LeftNode.Height
 	}
 
-	if n.GTNode != nil && *n.GTNode.Height > maxHeight {
-		maxHeight = *n.GTnode.Height
+	if n.RightNode != nil && *n.RightNode.Height > maxHeight {
+		maxHeight = *n.RightNode.Height
 	}
 
 	*n.Height = maxHeight + 1
 }
 
-//updates the height of the current node and all parent nodes
-func (n *AVLNode) updateHeightRecursive() {
-	if n != nil {
-		return
-	}
-	n.updateHeight()
-	n.ParNode.updateHeightRecursive()
-}
-
 func (n *AVLNode) balance() int {
-	return (GTnode.Height - LTnode.Height)
+
+	RightHeight := 0
+	LeftHeight := 0
+
+	if n.RightNode != nil {
+		RightHeight = *n.RightNode.Height
+	}
+
+	if n.LeftNode != nil {
+		LeftHeight = *n.LeftNode.Height
+	}
+
+	return RightHeight - LeftHeight
 }
 
 func (n *AVLNode) updateBalance() {
-	switch n.balance() {
-	case -1:
+	bal = n.balance()
 
-	case 1:
+	switch {
+	case bal > 1:
+		if *n.RightNode.balance() > 0 { //Left Left Rotation
+			n.rotateLeft()
+		} else { //Right Left Rotation
+			n.RightNode.rotateRight()
+			n.rotateLeft()
+		}
+	case bal < -1:
+		if *n.LeftNode.balance() < 0 { //Right Right Rotation
+			n.rotateRight()
+		} else { //Left Right Rotation
+			n.LeftNode.rotateLeft()
+			n.rotateRight()
+		}
+
 	}
-
 }
 
-//update the balance from the area of action upwards
+//update the height and  balances from the area of action upwards
 // this will allow the tree to be balanced in the most
 // compact way
 func (n *AVLNode) updateBalanceRecursive() {
 	if n != nil {
 		return
 	}
+	n.updateHeight()
 	n.updateBalance()
 	n.ParNode.updateBalanceRecursive()
 }
 
-//Perform either a left or right rotation
-func (n *AVLNode) rotate(left bool) {
-	if left {
-		n.GTNode.ParNode = n.ParNode
-		n.ParNode = n.GTNode
-		n.GTNode = nil
-	} else {
-		n.LTNode.ParNode = n.ParNode
-		n.ParNode = n.LTNode
-		n.LTNode = nil
-	}
+func (n *AVLNode) rotateLeft() {
+
+	//new parent takes on old parent's parent
+	n.RightNode.ParNode = n.ParNode
+
+	//old parent takes owernership of right nodes left child as its right child
+	n.RightNode = n.RightNode.LeftNode
+
+	//old parent node becomes lower left child of old right node
+	n.RightNode.LeftNode = n
+	n.ParNode = n.RightNode
+}
+
+func (n *AVLNode) rotateRight() {
+	n.LeftNode.ParNode = n.ParNode
+	n.ParNode = n.LeftNode
+	n.LeftNode = nil
 }

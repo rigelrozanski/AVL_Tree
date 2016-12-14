@@ -62,9 +62,8 @@ func (t *AVLTree) Add(key []byte, value []byte) (err error) {
 		matchNode = NewAVLLeaf(parNode, key, value)
 	}
 
-	//Update heights
-	matchNode.updateHeightRecursive()
-	matchNode.updateBalanceRecursive()
+	//Update height and balance
+	matchNode.updateHeightBalanceRecursive()
 
 	return
 }
@@ -84,10 +83,10 @@ func (t *AVLTree) Remove(key []byte) (err error) {
 
 			//If there is only one branch off of node to delete
 			//  then replace node with one branch node
-			if &matchNode.GTnode == nil {
-				matchNode = matchNode.LTnode
-			} else if &matchNode.LTnode == nil {
-				matchNode = matchNode.GTnode
+			if &matchNode.RightNode == nil {
+				matchNode = matchNode.LeftNode
+			} else if &matchNode.LeftNode == nil {
+				matchNode = matchNode.RightNode
 			}
 
 			//If there are two branches off of node to delete
@@ -115,8 +114,8 @@ func (t *AVLTree) Remove(key []byte) (err error) {
 		}
 	}
 
-	//Update heights and balance
-	t.trunk.updateBalanceAndHeight()
+	//Update height and balance
+	matchNode.updateHeightBalanceRecursive()
 
 	return
 }
