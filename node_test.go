@@ -42,12 +42,24 @@ func TestAVLNode(t *testing.T) {
 	}
 
 	//test a non-recursive height update
-	//b.updateHeight()
-	//heightTest(b, 1)
+	b.updateHeight()
+	heightTest(b, 1)
 
 	//test a recursive height update (from leaf to trunk)
 	c.updateHeightRecursive()
 	heightTest(c, 0)
 	heightTest(b, 1)
 	heightTest(a, 2)
+
+	//test rebalance to the expected position:
+	//    b
+	//   / \
+	//  a   c
+
+	c.updateHeightBalanceRecursive()
+	heightTest(b, 1)
+	heightTest(a, 0)
+	heightTest(c, 0)
+
+	t.Log(b.printStructure())
 }

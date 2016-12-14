@@ -47,10 +47,10 @@ func TestAVLTree(t *testing.T) {
 	heightTest(1)
 	printErr(tree.Add([]byte("c"), []byte("vC")))
 	heightTest(1)
-	printErr(tree.Add([]byte("d"), []byte("vD")))
-	heightTest(2)
-	printErr(tree.Add([]byte("e"), []byte("vE")))
-	heightTest(2)
+	//printErr(tree.Add([]byte("d"), []byte("vD")))
+	//heightTest(2)
+	//printErr(tree.Add([]byte("e"), []byte("vE")))
+	//heightTest(2)
 	t.Log(tree.trunk.printStructure())
 
 	//Test retrieving saved values
@@ -71,8 +71,8 @@ func TestAVLTree(t *testing.T) {
 	retrieveTest("a", "vA", true)
 	retrieveTest("b", "vB", true)
 	retrieveTest("c", "vC", true)
-	retrieveTest("d", "vD", true)
-	retrieveTest("e", "vE", true)
+	//retrieveTest("d", "vD", true)
+	//retrieveTest("e", "vE", true)
 
 	//Test adding a duplicate value
 	expErr := tree.Add([]byte("a"), []byte("vA"))
@@ -91,15 +91,15 @@ func TestAVLTree(t *testing.T) {
 	}
 
 	//Test removing saved values from the tree
-	printErr(tree.Remove([]byte("a")))
-	heightTest(2)
-	printErr(tree.Remove([]byte("b")))
-	heightTest(1)
+	//	printErr(tree.Remove([]byte("a")))
+	//	heightTest(2)
+	//	printErr(tree.Remove([]byte("b")))
+	//	heightTest(1)
 
 	//Test bad retrieval of old saved value
 	retrieveTest("a", "", false)
 	retrieveTest("b", "", false)
 	retrieveTest("c", "vC", true)
-	retrieveTest("d", "vD", true)
-	retrieveTest("e", "vE", true)
+	//retrieveTest("d", "vD", true)
+	//retrieveTest("e", "vE", true)
 }

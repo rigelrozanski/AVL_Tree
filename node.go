@@ -111,6 +111,8 @@ func (n *AVLNode) updateHeight() {
 	}
 
 	n.Height = maxHeight + 1
+
+	return
 }
 
 //currently only used for testing purposes
@@ -120,6 +122,8 @@ func (n *AVLNode) updateHeightRecursive() {
 	}
 	n.updateHeight()
 	n.ParNode.updateHeightRecursive()
+
+	return
 }
 
 func (n *AVLNode) getBalance() int {
@@ -158,6 +162,8 @@ func (n *AVLNode) updateBalance() {
 		}
 
 	}
+
+	return
 }
 
 //update the height and  balances from the area of action upwards
@@ -167,9 +173,12 @@ func (n *AVLNode) updateHeightBalanceRecursive() {
 	if n == nil {
 		return
 	}
+
 	n.updateHeight()
 	n.updateBalance()
 	n.ParNode.updateHeightBalanceRecursive()
+
+	return
 }
 
 func (n *AVLNode) rotateLeft() {
@@ -186,6 +195,8 @@ func (n *AVLNode) rotateLeft() {
 	//old parent node becomes lower left child of old right node
 	nodeUp.LeftNode = n
 	n.ParNode = nodeUp
+
+	return
 }
 
 func (n *AVLNode) rotateRight() {
@@ -202,6 +213,8 @@ func (n *AVLNode) rotateRight() {
 	//old parent node becomes lower right child of old left node
 	nodeUp.RightNode = n
 	n.ParNode = nodeUp
+
+	return
 }
 
 //used for testing purposes
