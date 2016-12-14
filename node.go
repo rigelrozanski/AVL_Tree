@@ -10,6 +10,7 @@ package AVL_Tree
 
 import (
 	"bytes"
+	"errors"
 )
 
 type AVLNode struct {
@@ -37,10 +38,10 @@ func NewAVLLeaf(
 }
 
 //return the node position of either the matching node or the locatation to place a node
-func (n *AVLNode) findPosition(searchKey []byte) (match bool, position *AVLNode) {
+func (n *AVLNode) findMatchPosition(searchKey []byte) (match bool, position *AVLNode) {
 
 	if n == nil {
-		return false, n //parent is set to nil if the trunk node
+		return false, n
 	}
 
 	//The result will be 0 if a==b, -1 if a < b, and +1 if a > b
@@ -48,29 +49,35 @@ func (n *AVLNode) findPosition(searchKey []byte) (match bool, position *AVLNode)
 	case 0:
 		return true, n
 	case -1:
-		return n.LeftNode.findPosition(searchKey) //send a reference to the parent node down for returning
+		return n.LeftNode.findMatchPosition(searchKey) //send a reference to the parent node down for returning
 	case 1:
-		return n.RightNode.findPosition(searchKey)
+		return n.RightNode.findMatchPosition(searchKey)
 	}
 
 	return
 }
 
 //return the node position of either the matching node or the locatation to place a node
-func (n *AVLNode) findPositionAndParent(searchKey []byte, parNodeIn *AVLNode) (match bool, position, parNode *AVLNode) {
+func (n *AVLNode) findAddPosition(searchKey []byte) (leftChild bool, parNode *AVLNode, err error) {
 
 	if n == nil {
-		return false, n, parNodeIn //parent is set to nil if the trunk node
+		return false, n, errors.New("Node is nil")
 	}
 
 	//The result will be 0 if a==b, -1 if a < b, and +1 if a > b
 	switch bytes.Compare(searchKey, n.Key) {
 	case 0:
-		return true, n, parNodeIn
+		return false, n, errors.New("Duplicate key found")
 	case -1:
-		return n.LeftNode.findPositionAndParent(searchKey, n) //send a reference to the parent node down for returning
+		if n.LeftNode == nil {
+			return true, n, nil
+		}
+		return n.LeftNode.findAddPosition(searchKey) //send a reference to the parent node down for returning
 	case 1:
-		return n.RightNode.findPositionAndParent(searchKey, n)
+		if n.RightNode == nil {
+			return false, n, nil
+		}
+		return n.RightNode.findAddPosition(searchKey)
 	}
 
 	return
