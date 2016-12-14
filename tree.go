@@ -52,11 +52,12 @@ func (t *AVLTree) Update(key []byte, value []byte) (err error) {
 
 func (t *AVLTree) Add(key []byte, value []byte) (err error) {
 
-	match, matchNode, parNode := t.trunk.findPositionAndParent(key, nil)
-
 	if t.trunk == nil {
-		parNode = nil
+		t.trunk = NewAVLLeaf(nil, key, value)
+		return
 	}
+
+	match, matchNode, parNode := t.trunk.findPositionAndParent(key, nil)
 
 	if match {
 		err = errors.New("duplicate key found")

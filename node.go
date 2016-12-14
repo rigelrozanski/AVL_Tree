@@ -21,13 +21,6 @@ type AVLNode struct {
 	RightNode *AVLNode //Right node with key greater than current node
 }
 
-func NewAVLTrunk(
-	key,
-	value []byte) *AVLNode {
-
-	return NewAVLLeaf(nil, key, value)
-}
-
 func NewAVLLeaf(
 	parNode *AVLNode,
 	key,

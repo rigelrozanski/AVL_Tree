@@ -26,7 +26,7 @@ func TestAVLTREE(t *testing.T) {
 
 	//Test adding several values to the AVL Tree
 	printErr(tree.Add([]byte("keyOne"), []byte("valueOne")))
-	//printErr(tree.Add([]byte("keyTwo"), []byte("valueTwo")))
+	printErr(tree.Add([]byte("keyTwo"), []byte("valueTwo")))
 	//printErr(tree.Add([]byte("keyThree"), []byte("valueThree")))
 	//printErr(tree.Add([]byte("keyFour"), []byte("valueFour")))
 
@@ -38,6 +38,12 @@ func TestAVLTREE(t *testing.T) {
 	printErr(err1)
 	if bytes.Compare(val1, []byte("valueOne")) != 0 {
 		t.Errorf("bad expected valueOne recieved " + string(val1[:]))
+	}
+
+	val2, err2 := tree.Get([]byte("keyTwo"))
+	printErr(err2)
+	if bytes.Compare(val2, []byte("valueTwo")) != 0 {
+		t.Errorf("bad expected valueTwo recieved " + string(val2[:]))
 	}
 
 	//Test adding a duplicate value
