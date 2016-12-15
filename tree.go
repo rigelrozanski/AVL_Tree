@@ -78,27 +78,36 @@ func (t *AVLTree) Add(key []byte, value []byte) error {
 func (t *AVLTree) Remove(key []byte) error {
 
 	match, matchNode := t.trunk.findMatchPosition(key)
-
 	if !match {
 		return errors.New("key not found")
 	}
 
-	//Update height and balance
+	//Update height and balance before leaving
 	defer matchNode.updateHeightBalanceRecursive(t)
+
+	setParentsChild := func(setTo *AVLNode) {
+		if matchNode.ParNode.LeftNode == matchNode {
+			matchNode.ParNode.LeftNode = setTo
+		} else {
+			matchNode.ParNode.RightNode = setTo
+		}
+
+		matchNode = setTo
+	}
 
 	//If leaf node being deleted, just delete it
 	if matchNode.Height == 0 {
-		matchNode = nil
+		setParentsChild(nil)
 		return nil
 	}
 
 	//If there is only one branch off of node to delete
 	//  then replace node with one branch node
-	if &matchNode.RightNode == nil {
-		matchNode = matchNode.LeftNode
+	if matchNode.RightNode == nil {
+		setParentsChild(matchNode.LeftNode)
 		return nil
-	} else if &matchNode.LeftNode == nil {
-		matchNode = matchNode.RightNode
+	} else if matchNode.LeftNode == nil {
+		setParentsChild(matchNode.RightNode)
 		return nil
 	}
 
@@ -110,24 +119,26 @@ func (t *AVLTree) Remove(key []byte) error {
 	//  if the longest branch is the greatest (rightmost) branch.
 	//  if the branches are balanced, use the greatest (rightmost) branch
 	//Methodology inspired by: http://www.mathcs.emory.edu/~cheung/Courses/323/Syllabus/Trees/AVL-delete.html
+	if matchNode.RightNode != nil && matchNode.LeftNode != nil {
+		//Determine the direction to replace, and node to switch from
+		var replaceFromNode *AVLNode
+		if matchNode.getBalance() >= 0 {
+			replaceFromNode = matchNode.findMin()
+		} else {
+			replaceFromNode = matchNode.findMax()
+		}
 
-	//Determine the direction to replace, and node to switch from
-	var replaceFromNode *AVLNode
-	if matchNode.getBalance() >= 0 {
-		replaceFromNode = matchNode.findMin()
-	} else {
-		replaceFromNode = matchNode.findMax()
+		//Temporarily save the replacement key and value, delete its original position
+		replaceFromKey := replaceFromNode.Key
+		replaceFromValue := replaceFromNode.Value
+		t.Remove(replaceFromKey) //TODO verify that this wont create pointer problems based the fact that a rebalance will occur
+
+		//Now replace the key and value for the target node to delete
+		// the branches of this node to stay the same
+		matchNode.Key = replaceFromKey
+		matchNode.Value = replaceFromValue
+		return nil
 	}
-
-	//Temporarily save the replacement key and value, delete its original position
-	replaceFromKey := replaceFromNode.Key
-	replaceFromValue := replaceFromNode.Value
-	t.Remove(replaceFromKey) //TODO verify that this wont create pointer problems based the fact that a rebalance will occur
-
-	//Now replace the key and value for the target node to delete
-	// the branches of this node to stay the same
-	matchNode.Key = replaceFromKey
-	matchNode.Value = replaceFromValue
 
 	return nil
 }

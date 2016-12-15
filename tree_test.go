@@ -21,49 +21,58 @@ func TestAVLTree(t *testing.T) {
 		}
 	}
 
-	//First create the AVL tree to be tested with
-	tree := NewAVLTree()
+	//First create the AVL tr to be tested with
+	tr := NewAVLTree()
 
 	//Test adding several values to the AVL Tree
-	//  at the same time test how the heights of the tree react
+	//  at the same time test how the heights of the tr react
 
 	heightTest := func(expectedHeight int) {
-		height := tree.trunk.Height
+		height := tr.trunk.Height
 		if height != expectedHeight {
-			t.Errorf("bad height, expected %v found %v ", expectedHeight, height)
+			t.Errorf("bad height for %v, expected %v found %v ",
+				string(tr.trunk.Key[:]), expectedHeight, height)
+			t.Log(tr.trunk.printStructure())
 		}
 	}
 
-	//Expected tree structures:
-	// a   a   b      b       b       d      d
-	//    /   / \    / \     / \     / \    / \
-	//   b   a   c  a   c   a   d   b   e  c   e
-	//                   \     / \   \
-	//                    d   c   e   c
+	//Expected tr structures:
+	// a   a   b      b       b          d          d
+	//    /   / \    / \     / \        / \        /  \
+	//   b   a   c  a   c   a   d      b   e      b    f
+	//                   \     / \    / \   \    /\    /\
+	//                    d   c   e  a   c   f  a  c  e  g
 
-	printErr(tree.Add([]byte("a"), []byte("vA")))
+	printErr(tr.Add([]byte("a"), []byte("vA")))
 	heightTest(0)
-	printErr(tree.Add([]byte("b"), []byte("vB")))
+	printErr(tr.Add([]byte("b"), []byte("vB")))
 	heightTest(1)
-	printErr(tree.Add([]byte("c"), []byte("vC")))
+	printErr(tr.Add([]byte("c"), []byte("vC")))
 	heightTest(1)
-	//printErr(tree.Add([]byte("d"), []byte("vD")))
-	//heightTest(2)
-	//printErr(tree.Add([]byte("e"), []byte("vE")))
-	//heightTest(2)
-	t.Log(tree.trunk.printStructure())
+	printErr(tr.Add([]byte("d"), []byte("vD")))
+	heightTest(2)
+	printErr(tr.Add([]byte("e"), []byte("vE")))
+	heightTest(2)
+	printErr(tr.Add([]byte("f"), []byte("vF")))
+	heightTest(2)
+	printErr(tr.Add([]byte("g"), []byte("vG")))
+	heightTest(2)
+
+	t.Log(tr.trunk.printStructure())
 
 	//Test retrieving saved values
 	retrieveTest := func(key, expectedVal string, expectedExists bool) {
-		recievedVal, err := tree.Get([]byte(key))
+		recievedVal, err := tr.Get([]byte(key))
 		if expectedExists {
 			printErr(err)
 			if bytes.Compare(recievedVal, []byte(expectedVal)) != 0 {
 				t.Errorf("bad expected %v recieved %v ", expectedVal, string(recievedVal[:]))
+				t.Log(tr.trunk.printStructure())
 			}
 		} else {
 			if err == nil {
-				t.Errorf("expected to receive an error when attempting to retrieve non-existent value for key ", key)
+				t.Errorf("expected to receive an error when attempting to retrieve non-existent value for key %v", key)
+				t.Log(tr.trunk.printStructure())
 			}
 		}
 	}
@@ -71,35 +80,58 @@ func TestAVLTree(t *testing.T) {
 	retrieveTest("a", "vA", true)
 	retrieveTest("b", "vB", true)
 	retrieveTest("c", "vC", true)
-	//retrieveTest("d", "vD", true)
-	//retrieveTest("e", "vE", true)
+	retrieveTest("d", "vD", true)
+	retrieveTest("e", "vE", true)
+	retrieveTest("f", "vF", true)
+	retrieveTest("g", "vG", true)
 
 	//Test adding a duplicate value
-	expErr := tree.Add([]byte("a"), []byte("vA"))
+	expErr := tr.Add([]byte("a"), []byte("vA"))
 	if expErr == nil {
 		t.Errorf("expected to receive an error when attempting to add duplicate values")
 	}
 
 	//Test updating an existing value
-	printErr(tree.Update([]byte("a"), []byte("vAA")))
+	printErr(tr.Update([]byte("a"), []byte("vAA")))
 	retrieveTest("a", "vAA", true)
 
 	//Test updating a non existent value
-	expErr = tree.Update([]byte("z"), []byte("vZ"))
+	expErr = tr.Update([]byte("z"), []byte("vZ"))
 	if expErr == nil {
 		t.Errorf("expected to receive an error when attempting to update non-existent value")
 	}
 
-	//Test removing saved values from the tree
-	//	printErr(tree.Remove([]byte("a")))
-	//	heightTest(2)
-	//	printErr(tree.Remove([]byte("b")))
-	//	heightTest(1)
+	//Test removing saved values from the tr
 
-	//Test bad retrieval of old saved value
-	retrieveTest("a", "", false)
-	retrieveTest("b", "", false)
+	//Expected tr structures:
+	//      d         d      e
+	//     /  \      / \    / \
+	//    b    f    c   f  c   f
+	//    \    /\      /
+	//     c  e  g    e
+
+	//removal of leafs
+	printErr(tr.Remove([]byte("a")))
+	printErr(tr.Remove([]byte("g")))
+	heightTest(2)
+	t.Log(tr.trunk.printStructure())
+
+	//removal of a branch with one child nodes
+	printErr(tr.Remove([]byte("b")))
+	heightTest(2)
+	t.Log(tr.trunk.printStructure())
+
+	//removal of a branch with one child nodes
+	printErr(tr.Remove([]byte("d")))
+	heightTest(1)
+	t.Log(tr.trunk.printStructure())
+
+	//Test retrieval of old saved value
+	retrieveTest("a", "cA", false)
+	retrieveTest("b", "vB", false)
 	retrieveTest("c", "vC", true)
-	//retrieveTest("d", "vD", true)
-	//retrieveTest("e", "vE", true)
+	retrieveTest("d", "vD", false)
+	retrieveTest("e", "vE", true)
+	retrieveTest("f", "vF", true)
+	retrieveTest("g", "vG", false)
 }
