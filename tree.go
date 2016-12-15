@@ -23,7 +23,20 @@ func NewAVLTree() AVLTree {
 	}
 }
 
+func (t *AVLTree) GetHash() (hash []byte) {
+	if t.trunk == nil {
+		err = errors.New("empty tree")
+		return
+	}
+
+	return t.trunk.hash
+}
+
 func (t *AVLTree) Get(key []byte) (value []byte, err error) {
+	if t.trunk == nil {
+		err = errors.New("empty tree")
+		return
+	}
 
 	match, matchNode := t.trunk.findMatchPosition(key)
 
@@ -37,6 +50,10 @@ func (t *AVLTree) Get(key []byte) (value []byte, err error) {
 }
 
 func (t *AVLTree) Update(key []byte, value []byte) error {
+	if t.trunk == nil {
+		err = errors.New("empty tree")
+		return
+	}
 
 	match, matchNode := t.trunk.findMatchPosition(key)
 
@@ -76,6 +93,10 @@ func (t *AVLTree) Add(key []byte, value []byte) error {
 }
 
 func (t *AVLTree) Remove(key []byte) error {
+	if t.trunk == nil {
+		err = errors.New("empty tree")
+		return
+	}
 
 	match, matchNode := t.trunk.findMatchPosition(key)
 	if !match {
@@ -131,7 +152,7 @@ func (t *AVLTree) Remove(key []byte) error {
 		//Temporarily save the replacement key and value, delete its original position
 		replaceFromKey := replaceFromNode.key
 		replaceFromValue := replaceFromNode.value
-		t.Remove(replaceFromKey) //TODO verify that this wont create pointer problems based the fact that a rebalance will occur
+		t.Remove(replaceFromKey)
 
 		//Now replace the key and value for the target node to delete
 		// the branches of this node to stay the same

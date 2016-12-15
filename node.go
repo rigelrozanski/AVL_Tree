@@ -11,9 +11,10 @@ type node struct {
 	key       []byte //node key
 	value     []byte //node value
 	height    int    //
-	parNode   *node  //Parent AVL node
-	leftNode  *node  //Left node with key less than current node
-	rightNode *node  //Right node with key greater than current node
+	hash      []byte
+	parNode   *node //Parent AVL node
+	leftNode  *node //Left node with key less than current node
+	rightNode *node //Right node with key greater than current node
 }
 
 func newNodeLeaf(
@@ -25,17 +26,16 @@ func newNodeLeaf(
 		key:       key,
 		value:     value,
 		height:    0,
+		hash:      getHash(appendByte(key, value)),
 		parNode:   parNode,
 		leftNode:  nil,
 		rightNode: nil,
 	}
 }
 
-func getHash(dataInput string) []byte {
-	//performing the hash
-	hashBytes := sha3.Sum256([]byte(dataInput))
-	return hashBytes[:]
-}
+/////////////////////////////
+// Search Functions
+/////////////////////////////
 
 //return the node position of either the matching node or the locatation to place a node
 func (n *node) findMatchPosition(searchkey []byte) (match bool, position *node) {
@@ -97,6 +97,44 @@ func (n *node) findMax() *node {
 	return n.rightNode.findMax()
 }
 
+/////////////////////////////
+// Crypto Functions
+/////////////////////////////
+
+//update the hash value stored in a node
+// for branch nodes hash the concatenated hash values of branches
+// for leaf nodes hash the concatenated record key and value
+func (n *node) updateNodeHash() {
+	switch {
+	case n.leftNode != nil && n.rightNode != nil:
+		n.hash = getHash(appendByte(n.leftNode.Hash, n.rightNode.Hash))
+	case n.leftNode == nil && n.rightNode != nil:
+		n.hash = getHash(appendByte(n.rightNode.Hash))
+	case n.leftNode != nil && n.rightNode == nil:
+		n.hash = getHash(appendByte(n.leftNode.Hash))
+	case n.leftNode == nil && n.rightNode == nil:
+		n.hash = getHash(appendByte(n.key, n.value))
+	}
+}
+
+func appendByte(in1, in2 []byte) []byte {
+	return append(in1, in2...)
+}
+
+func getHash(in []byte) []byte {
+	hashBytes := sha3.Sum256(in)
+	return hashBytes[:]
+}
+
+/////////////////////////////
+// Update Functions
+/////////////////////////////
+
+func (n *node) updateHeightAndHash() {
+	n.updateHeight()
+	n.updateHash()
+}
+
 //updates the height of the current node
 func (n *node) updateHeight() {
 
@@ -154,14 +192,13 @@ func (n *node) updateBalance(tr *AVLTree) {
 }
 
 //update the height and  balances from the area of action upwards
-// this will allow the tree to be balanced in the most
-// compact way
+// this will allow the tree to be balanced in the most compact way
 func (n *node) updateHeightBalanceRecursive(tr *AVLTree) {
 	if n == nil {
 		return
 	}
 
-	n.updateHeight()
+	n.updateHeightAndHash()
 	n.updateBalance(tr)
 	n.parNode.updateHeightBalanceRecursive(tr)
 
@@ -201,8 +238,8 @@ func (n *node) rotate(tr *AVLTree, left bool) {
 	}
 
 	//update effected heights
-	n.updateHeight()
-	nodeUp.updateHeight()
+	n.updateHeightAndHash()
+	nodeUp.updateHeightAndHash()
 
 	return
 }
