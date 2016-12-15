@@ -37,17 +37,18 @@ func newNodeLeaf(
 // Search Functions
 /////////////////////////////
 
-//return the node position of either the matching node or the locatation to place a node
-func (n *node) findMatchPosition(searchkey []byte) (match bool, position *node) {
+//return the node with the matching key
+// if no matching node is found return nil
+func (n *node) findNode(searchkey []byte) *node {
 
 	if n == nil {
-		return false, n
+		return nil
 	}
 
 	//The result will be 0 if a==b, -1 if a < b, and +1 if a > b
 	switch bytes.Compare(searchkey, n.key) {
 	case 0:
-		return true, n
+		return n
 	case -1:
 		return n.leftNode.findMatchPosition(searchkey) //send a reference to the parent node down for returning
 	case 1:

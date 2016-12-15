@@ -38,9 +38,9 @@ func (t *AVLTree) Get(key []byte) (value []byte, err error) {
 		return
 	}
 
-	match, matchNode := t.trunk.findMatchPosition(key)
+	matchNode := t.trunk.findNode(key)
 
-	if !match {
+	if matchNode == nil {
 		err = errors.New("key not found")
 	} else {
 		value = matchNode.value
@@ -55,9 +55,9 @@ func (t *AVLTree) Update(key []byte, value []byte) error {
 		return
 	}
 
-	match, matchNode := t.trunk.findMatchPosition(key)
+	matchNode := t.trunk.findMatchNode(key)
 
-	if !match {
+	if matchNode == nil {
 		return errors.New("key not found")
 	}
 
@@ -98,8 +98,8 @@ func (t *AVLTree) Remove(key []byte) error {
 		return
 	}
 
-	match, matchNode := t.trunk.findMatchPosition(key)
-	if !match {
+	matchNode := t.trunk.findNode(key)
+	if matchNode {
 		return errors.New("key not found")
 	}
 

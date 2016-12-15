@@ -7,52 +7,56 @@ import (
 
 func TestAVLTree(t *testing.T) {
 
+	//The AVLTree to be tested with
+	tr := NewAVLTree()
+
+	/////////////////////////////////////
+	// core sub-test function variables
+	/////////////////////////////////////
+
 	printErr := func(err error) {
 		if err != nil {
 			t.Errorf(err.Error())
 		}
 	}
 
-	//First create the AVL tr to be tested with
-	tr := NewAVLTree()
+	heightBalanceNodeTest := func(n *node, expdHeight, expdBalance int) {
 
-	//Test adding several values to the AVL Tree
-	//  at the same time test how the heights of the tr react
+		//test balance
+		bal := n.getBalance()
+		if bal != expdBalance {
+			t.Errorf("bad balance for %v, expected %v found %v ",
+				string(n.key[:]), expdBal, bal)
+			t.Log(n.printStructure())
+		}
 
-	heightTest := func(expectedHeight int) {
-		height := tr.trunk.height
-		if height != expectedHeight {
+		//test height
+		height := n.height
+		if height != expdHeight {
 			t.Errorf("bad height for %v, expected %v found %v ",
-				string(tr.trunk.key[:]), expectedHeight, height)
-			t.Log(tr.trunk.printStructure())
+				string(n.key[:]), expdHeight, height)
+			t.Log(n.printStructure())
 		}
 	}
 
-	//Expected tr structures:
-	// a   a   b      b       b          d          d
-	//    /   / \    / \     / \        / \        /  \
-	//   b   a   c  a   c   a   d      b   e      b    f
-	//                   \     / \    / \   \    /\    /\
-	//                    d   c   e  a   c   f  a  c  e  g
+	heightBalanceNodeKeyTest := func(nodeKey string, expdHeight, expdBalance int) {
+		heightBalanceNodeTest(tr.getNode(nodeKey), expdHeight, expdBalance)
+	}
 
-	printErr(tr.Add([]byte("a"), []byte("vA")))
-	heightTest(0)
-	printErr(tr.Add([]byte("b"), []byte("vB")))
-	heightTest(1)
-	printErr(tr.Add([]byte("c"), []byte("vC")))
-	heightTest(1)
-	printErr(tr.Add([]byte("d"), []byte("vD")))
-	heightTest(2)
-	printErr(tr.Add([]byte("e"), []byte("vE")))
-	heightTest(2)
-	printErr(tr.Add([]byte("f"), []byte("vF")))
-	heightTest(2)
-	printErr(tr.Add([]byte("g"), []byte("vG")))
-	heightTest(2)
+	heightBalanceTrunkTest := func(expdTrunkKey string, expdHeight, expdBalance int) {
 
-	t.Log(tr.trunk.printStructure())
+		//test trunk node key
+		expdTrunkKeyByte = []byte(expdTrunkKey)
+		key := tr.trunk.key
+		if bytes.Compare(key, expdTrunkKeyByte) != 0 {
+			t.Errorf("bad trunk key expected %v found %v ",
+				expdTrunkKeyByte, string(key[:]))
+			t.Log(tr.trunk.printStructure())
+		}
 
-	//Test retrieving saved values
+		heightBalanceNodeTest(tr.trunk, expdHeight, expdBalance)
+	}
+
 	retrieveTest := func(key, expectedVal string, expectedExists bool) {
 		recievedVal, err := tr.Get([]byte(key))
 		if expectedExists {
@@ -69,6 +73,43 @@ func TestAVLTree(t *testing.T) {
 		}
 	}
 
+	/////////////////////////////////////
+	// Tests begin
+	/////////////////////////////////////
+
+	//Test adding several values to the AVL Tree
+	//  at the same time test how the heights of the tr react
+	//Expected tr structures:
+	// a   a   b      b       b          d          d
+	//    /   / \    / \     / \        / \        /  \
+	//   b   a   c  a   c   a   d      b   e      b    f
+	//                   \     / \    / \   \    /\    /\
+	//                    d   c   e  a   c   f  a  c  e  g
+
+	printErr(tr.Add([]byte("a"), []byte("vA")))
+	heightBalanceTrunkTest("a", 0, 0)
+
+	printErr(tr.Add([]byte("b"), []byte("vB")))
+	heightBalanceTrunkTest("a", 1, -1)
+
+	printErr(tr.Add([]byte("c"), []byte("vC")))
+	heightBalanceTrunkTest("b", 1, 0)
+
+	printErr(tr.Add([]byte("d"), []byte("vD")))
+	heightBalanceTrunkTest("b", 2, 1)
+
+	printErr(tr.Add([]byte("e"), []byte("vE")))
+	heightBalanceTrunkTest("b", 2, 1)
+
+	printErr(tr.Add([]byte("f"), []byte("vF")))
+	heightBalanceTrunkTest("d", 2, 0)
+
+	printErr(tr.Add([]byte("g"), []byte("vG")))
+	heightBalanceTrunkTest("d", 2, 0)
+
+	t.Log(tr.trunk.printStructure())
+
+	//Test retrieving saved values
 	retrieveTest("a", "vA", true)
 	retrieveTest("b", "vB", true)
 	retrieveTest("c", "vC", true)
@@ -94,7 +135,6 @@ func TestAVLTree(t *testing.T) {
 	}
 
 	//Test removing saved values from the tr
-
 	//Expected tr structures:
 	//      d         d      e
 	//     /  \      / \    / \
@@ -105,6 +145,7 @@ func TestAVLTree(t *testing.T) {
 	//removal of leafs
 	printErr(tr.Remove([]byte("a")))
 	printErr(tr.Remove([]byte("g")))
+	heightBalanceTrunkTest("d", 2, 0)
 	heightTest(2)
 	t.Log(tr.trunk.printStructure())
 
