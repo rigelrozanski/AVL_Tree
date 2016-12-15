@@ -16,13 +16,9 @@ import (
 func TestAVLNode(t *testing.T) {
 
 	//Manually create a basic AVL tree
-	var a, b, c *AVLNode
-
-	setNewLeafs := func() {
-		a = NewAVLLeaf(nil, []byte("a"), []byte("vA"))
-		b = NewAVLLeaf(nil, []byte("b"), []byte("vB"))
-		c = NewAVLLeaf(nil, []byte("c"), []byte("vC"))
-	}
+	a := NewAVLLeaf(nil, []byte("a"), []byte("vA"))
+	b := NewAVLLeaf(nil, []byte("b"), []byte("vB"))
+	c := NewAVLLeaf(nil, []byte("c"), []byte("vC"))
 
 	//string the three nodes together to a basic unbalanced tree
 
@@ -32,37 +28,32 @@ func TestAVLNode(t *testing.T) {
 	// Config 1  Config 2  Config 3  Config 4
 	//  a          a            c       c
 	//   \          \          /       /
-	//    b          c        b       a
+	//    b          c        b       b
 	//     \        /        /         \
-	//      c      b        a           b
-
+	//      c      b        a           a
 	setConfig1 := func() {
-		setNewLeafs()
 		a.RightNode = b
 		b.ParNode = a
 		b.RightNode = c
 		c.ParNode = b
 	}
 	setConfig2 := func() {
-		setNewLeafs()
 		a.RightNode = c
 		c.ParNode = a
 		c.LeftNode = b
 		b.ParNode = c
 	}
 	setConfig3 := func() {
-		setNewLeafs()
 		c.LeftNode = b
 		b.ParNode = c
 		b.LeftNode = a
 		a.ParNode = b
 	}
 	setConfig4 := func() {
-		setNewLeafs()
-		c.LeftNode = a
-		a.ParNode = c
-		a.RightNode = b
-		b.ParNode = a
+		c.LeftNode = b
+		b.ParNode = c
+		b.RightNode = a
+		a.ParNode = b
 	}
 
 	//Start by testing configuration 1
@@ -74,16 +65,7 @@ func TestAVLNode(t *testing.T) {
 	heightTest := func(node *AVLNode, expectedHeight int) {
 		height := node.Height
 		if height != expectedHeight {
-			t.Errorf("bad height for %v, expected %v found %v ",
-				string(node.Key[:]), expectedHeight, height)
-		}
-	}
-
-	balanceTest := func(node *AVLNode, expectedBal int) {
-		bal := node.getBalance()
-		if bal != expectedBal {
-			t.Errorf("bad balance for %v, expected %v found %v ",
-				string(node.Key[:]), expectedBal, bal)
+			t.Errorf("bad height, expected %v found %v ", expectedHeight, height)
 		}
 	}
 
@@ -97,50 +79,29 @@ func TestAVLNode(t *testing.T) {
 	heightTest(b, 1)
 	heightTest(a, 2)
 
-	//test the balances
-	balanceTest(c, 0)
-	balanceTest(b, 1)
-	balanceTest(a, 2)
-
 	//test rebalance to the expected position:
 	//    b
 	//   / \
 	//  a   c
 
-	testHeightsLog := func(aHeight, bHeight, cHeight int, logNode *AVLNode) {
-		heightTest(a, aHeight)
-		heightTest(b, bHeight)
-		heightTest(c, cHeight)
-		t.Log(logNode.printStructure())
-	}
-
 	//test manual rotation
-	a.rotate(true)
-	testHeightsLog(0, 1, 0, b)
+	a.rotateLeft()
+	heightTest(b, 1)
+	heightTest(a, 0)
+	heightTest(c, 0)
+	t.Log(b.printStructure())
 
-	//test rotation with updateBalance
-	setConfig1()
-	c.updateHeightRecursive()
-	a.updateBalance()
-	testHeightsLog(0, 1, 0, b)
+	//test auto rotation
+	///setConfig1()
+	//a.rotateLeft()
+	//c.updateHeightBalanceRecursive()
+	//heightTest(b, 1)
+	//heightTest(a, 0)
+	//heightTest(c, 0)
+	//t.Log(b.printStructure())
 
-	//test rotation with updateHeightBalanceRecursive
-	setConfig1()
-	c.updateHeightBalanceRecursive()
-	testHeightsLog(0, 1, 0, b)
-
-	//test some alternate configurations to see if they perform the adequate rotations
-	//  note the operations is always taken from the leaf node (which is where they would be called)
 	setConfig2()
-	b.updateHeightBalanceRecursive()
-	testHeightsLog(0, 1, 0, b)
-
 	setConfig3()
-	a.updateHeightBalanceRecursive()
-	testHeightsLog(0, 1, 0, b)
-
 	setConfig4()
-	b.updateHeightBalanceRecursive()
-	testHeightsLog(0, 1, 0, b)
 
 }

@@ -132,11 +132,11 @@ func (n *AVLNode) getBalance() int {
 	LeftHeight := 0
 
 	if n.RightNode != nil {
-		RightHeight = n.RightNode.Height
+		RightHeight = n.RightNode.Height + 1
 	}
 
 	if n.LeftNode != nil {
-		LeftHeight = n.LeftNode.Height
+		LeftHeight = n.LeftNode.Height + 1
 	}
 
 	return RightHeight - LeftHeight
@@ -160,7 +160,6 @@ func (n *AVLNode) updateBalance() {
 			n.LeftNode.rotate(true)
 			n.rotate(false)
 		}
-
 	}
 
 	return
@@ -181,45 +180,6 @@ func (n *AVLNode) updateHeightBalanceRecursive() {
 	return
 }
 
-func (n *AVLNode) rotateLeft() {
-
-	//Original right node moving up during rotation
-	nodeUp := n.RightNode
-
-	//new parent takes on old parent's parent
-	nodeUp.ParNode = n.ParNode
-
-	//old parent takes owernership of right nodes left child as its right child
-	n.RightNode = nodeUp.LeftNode
-
-	//old parent node becomes lower left child of old right node
-	nodeUp.LeftNode = n
-	n.ParNode = nodeUp
-
-	n.updateHeight()
-	nodeUp.updateHeight()
-
-	return
-}
-
-func (n *AVLNode) rotateRight() {
-
-	//Original left node moving up during rotation
-	nodeUp := n.LeftNode
-
-	//new parent takes on old parent's parent
-	nodeUp.ParNode = n.ParNode
-
-	//old parent takes owernership of left nodes right child as its left child
-	n.LeftNode = nodeUp.RightNode
-
-	//old parent node becomes lower right child of old left node
-	nodeUp.RightNode = n
-	n.ParNode = nodeUp
-
-	return
-}
-
 //rotate function used by rotateRight/Left
 func (n *AVLNode) rotate(left bool) {
 
@@ -227,11 +187,11 @@ func (n *AVLNode) rotate(left bool) {
 
 	//old parent takes owernership of left nodes right child as its left child
 	if left {
-		nodeUp := n.RightNode
+		nodeUp = n.RightNode
 		n.RightNode = nodeUp.LeftNode
 		nodeUp.LeftNode = n
 	} else {
-		nodeUp := n.LeftNode
+		nodeUp = n.LeftNode
 		n.LeftNode = nodeUp.RightNode
 		nodeUp.RightNode = n
 	}
@@ -239,6 +199,15 @@ func (n *AVLNode) rotate(left bool) {
 	//parent swap
 	nodeUp.ParNode = n.ParNode
 	n.ParNode = nodeUp
+
+	//update the grandparents child too
+	if nodeUp.ParNode != nil {
+		if nodeUp.ParNode.LeftNode == n {
+			nodeUp.ParNode.LeftNode = nodeUp
+		} else {
+			nodeUp.ParNode.RightNode = nodeUp
+		}
+	}
 
 	//update effected heights
 	n.updateHeight()
