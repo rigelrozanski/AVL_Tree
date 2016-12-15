@@ -243,21 +243,9 @@ func (n *node) rotate(tr *AVLTree, left bool) {
 }
 
 /////////////////////////////
-// Testing Functions
+// Used for Testing Purposes
 /////////////////////////////
 
-//currently only used for testing purposes
-func (n *node) updateHeightRecursive() {
-	if n == nil {
-		return
-	}
-	n.updateHeight()
-	n.parNode.updateHeightRecursive()
-
-	return
-}
-
-//used for testing purposes
 //recursively add all the downstream
 func (n *node) printStructure() (out string) {
 

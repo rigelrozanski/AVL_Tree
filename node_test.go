@@ -18,7 +18,7 @@ func Testnode(t *testing.T) {
 		c = newNodeLeaf(nil, []byte("c"), []byte("vC"))
 	}
 
-	//string the three nodes together to a basic unbalanced tree
+	//String the three nodes together to a basic unbalanced tree
 
 	//////////////////////////////////////////
 	// Test Configurations
@@ -62,79 +62,76 @@ func Testnode(t *testing.T) {
 	//Start by testing configuration 1
 	setConfig1()
 
-	//print the tree structure
-	t.Log(a.printStructure())
+	heightBalanceTest := func(node *node, expectedHeight int, expectedBal int) {
 
-	heightTest := func(node *node, expectedHeight int) {
+		//test height
 		height := node.height
 		if height != expectedHeight {
 			t.Errorf("bad height for %v, expected %v found %v ",
 				string(node.key[:]), expectedHeight, height)
+			t.Log(a.printStructure())
 		}
-	}
 
-	balanceTest := func(node *node, expectedBal int) {
+		//test balance
 		bal := node.getBalance()
 		if bal != expectedBal {
 			t.Errorf("bad balance for %v, expected %v found %v ",
 				string(node.key[:]), expectedBal, bal)
+			t.Log(a.printStructure())
 		}
 	}
 
 	//test a non-recursive height update
 	b.updateHeight()
-	heightTest(b, 1)
+	heightBalanceTest(b, 1, 0) //note the balance has not been updated so should still 0
+
+	//test a non-recursive balance update
+	b.updateBalance(&tr)
+	heightBalanceTest(b, 1, 1) //note the balance has not been updated so should still 0
 
 	//test a recursive height update (from leaf to trunk)
-	c.updateHeightRecursive()
-	heightTest(c, 0)
-	heightTest(b, 1)
-	heightTest(a, 2)
-
-	//test the balances
-	balanceTest(c, 0)
-	balanceTest(b, 1)
-	balanceTest(a, 2)
+	c.updateHeightBalanceRecursive(&tr)
+	heightBalanceTest(c, 0, 0)
+	heightBalanceTest(b, 1, 1)
+	heightBalanceTest(a, 2, 2)
 
 	//test rebalance to the expected position:
 	//    b
 	//   / \
 	//  a   c
 
-	testHeightsLog := func(aHeight, bHeight, cHeight int, logNode *node) {
-		heightTest(a, aHeight)
-		heightTest(b, bHeight)
-		heightTest(c, cHeight)
-		t.Log(logNode.printStructure())
+	testStructure := func() {
+		heightBalanceTest(a, 0, 0)
+		heightBalanceTest(b, 1, 0)
+		heightBalanceTest(c, 0, 0)
 	}
 
 	//test manual rotation
 	a.rotate(&tr, true)
-	testHeightsLog(0, 1, 0, b)
+	testStructure()
 
 	//test rotation with updateBalance
 	setConfig1()
-	c.updateHeightRecursive()
-	a.updateBalance(&tr)
-	testHeightsLog(0, 1, 0, b)
+	c.updateHeightBalanceRecursive(&tr)
+	testStructure()
 
 	//test rotation with updateHeightBalanceRecursive
 	setConfig1()
 	c.updateHeightBalanceRecursive(&tr)
-	testHeightsLog(0, 1, 0, b)
+	testStructure()
 
 	//test some alternate configurations to see if they perform the adequate rotations
 	//  note the operations is always taken from the leaf node (which is where they would be called)
 	setConfig2()
 	b.updateHeightBalanceRecursive(&tr)
-	testHeightsLog(0, 1, 0, b)
+	testStructure()
 
 	setConfig3()
 	a.updateHeightBalanceRecursive(&tr)
-	testHeightsLog(0, 1, 0, b)
+	testStructure()
 
 	setConfig4()
 	b.updateHeightBalanceRecursive(&tr)
-	testHeightsLog(0, 1, 0, b)
+	testStructure()
 
 }
