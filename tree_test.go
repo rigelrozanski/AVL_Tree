@@ -1,11 +1,3 @@
-//      __      ___        _______ _____  ______ ______
-//     /\ \    / / |      |__   __|  __ \|  ____|  ____|
-//    /  \ \  / /| |         | |  | |__) | |__  | |__
-//   / /\ \ \/ / | |         | |  |  _  /|  __| |  __|
-//  / ____ \  /  | |____     | |  | | \ \| |____| |____
-// /_/    \_\/   |______|    |_|  |_|  \_\______|______|
-//
-
 package AVL_Tree
 
 import (
@@ -28,10 +20,10 @@ func TestAVLTree(t *testing.T) {
 	//  at the same time test how the heights of the tr react
 
 	heightTest := func(expectedHeight int) {
-		height := tr.trunk.Height
+		height := tr.trunk.height
 		if height != expectedHeight {
 			t.Errorf("bad height for %v, expected %v found %v ",
-				string(tr.trunk.Key[:]), expectedHeight, height)
+				string(tr.trunk.key[:]), expectedHeight, height)
 			t.Log(tr.trunk.printStructure())
 		}
 	}

@@ -1,30 +1,21 @@
-//      __      ___        _______ _____  ______ ______
-//     /\ \    / / |      |__   __|  __ \|  ____|  ____|
-//    /  \ \  / /| |         | |  | |__) | |__  | |__
-//   / /\ \ \/ / | |         | |  |  _  /|  __| |  __|
-//  / ____ \  /  | |____     | |  | | \ \| |____| |____
-// /_/    \_\/   |______|    |_|  |_|  \_\______|______|
-//
-
 package AVL_Tree
 
 import (
-	//	"bytes"
 	"testing"
 )
 
-func TestAVLNode(t *testing.T) {
+func Testnode(t *testing.T) {
 
 	//dummy tree for feeding into operations (normally used for replacing for swapping the trunk)
 	tr := NewAVLTree()
 
 	//Manually create a basic AVL tree
-	var a, b, c *AVLNode
+	var a, b, c *node
 
 	setNewLeafs := func() {
-		a = NewAVLLeaf(nil, []byte("a"), []byte("vA"))
-		b = NewAVLLeaf(nil, []byte("b"), []byte("vB"))
-		c = NewAVLLeaf(nil, []byte("c"), []byte("vC"))
+		a = newNodeLeaf(nil, []byte("a"), []byte("vA"))
+		b = newNodeLeaf(nil, []byte("b"), []byte("vB"))
+		c = newNodeLeaf(nil, []byte("c"), []byte("vC"))
 	}
 
 	//string the three nodes together to a basic unbalanced tree
@@ -41,31 +32,31 @@ func TestAVLNode(t *testing.T) {
 
 	setConfig1 := func() {
 		setNewLeafs()
-		a.RightNode = b
-		b.ParNode = a
-		b.RightNode = c
-		c.ParNode = b
+		a.rightNode = b
+		b.parNode = a
+		b.rightNode = c
+		c.parNode = b
 	}
 	setConfig2 := func() {
 		setNewLeafs()
-		a.RightNode = c
-		c.ParNode = a
-		c.LeftNode = b
-		b.ParNode = c
+		a.rightNode = c
+		c.parNode = a
+		c.leftNode = b
+		b.parNode = c
 	}
 	setConfig3 := func() {
 		setNewLeafs()
-		c.LeftNode = b
-		b.ParNode = c
-		b.LeftNode = a
-		a.ParNode = b
+		c.leftNode = b
+		b.parNode = c
+		b.leftNode = a
+		a.parNode = b
 	}
 	setConfig4 := func() {
 		setNewLeafs()
-		c.LeftNode = a
-		a.ParNode = c
-		a.RightNode = b
-		b.ParNode = a
+		c.leftNode = a
+		a.parNode = c
+		a.rightNode = b
+		b.parNode = a
 	}
 
 	//Start by testing configuration 1
@@ -74,19 +65,19 @@ func TestAVLNode(t *testing.T) {
 	//print the tree structure
 	t.Log(a.printStructure())
 
-	heightTest := func(node *AVLNode, expectedHeight int) {
-		height := node.Height
+	heightTest := func(node *node, expectedHeight int) {
+		height := node.height
 		if height != expectedHeight {
 			t.Errorf("bad height for %v, expected %v found %v ",
-				string(node.Key[:]), expectedHeight, height)
+				string(node.key[:]), expectedHeight, height)
 		}
 	}
 
-	balanceTest := func(node *AVLNode, expectedBal int) {
+	balanceTest := func(node *node, expectedBal int) {
 		bal := node.getBalance()
 		if bal != expectedBal {
 			t.Errorf("bad balance for %v, expected %v found %v ",
-				string(node.Key[:]), expectedBal, bal)
+				string(node.key[:]), expectedBal, bal)
 		}
 	}
 
@@ -110,7 +101,7 @@ func TestAVLNode(t *testing.T) {
 	//   / \
 	//  a   c
 
-	testHeightsLog := func(aHeight, bHeight, cHeight int, logNode *AVLNode) {
+	testHeightsLog := func(aHeight, bHeight, cHeight int, logNode *node) {
 		heightTest(a, aHeight)
 		heightTest(b, bHeight)
 		heightTest(c, cHeight)

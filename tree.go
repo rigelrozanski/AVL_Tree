@@ -13,7 +13,7 @@ import (
 )
 
 type AVLTree struct {
-	trunk *AVLNode
+	trunk *node
 }
 
 func NewAVLTree() AVLTree {
@@ -30,7 +30,7 @@ func (t *AVLTree) Get(key []byte) (value []byte, err error) {
 	if !match {
 		err = errors.New("key not found")
 	} else {
-		value = matchNode.Value
+		value = matchNode.value
 	}
 
 	return
@@ -44,7 +44,7 @@ func (t *AVLTree) Update(key []byte, value []byte) error {
 		return errors.New("key not found")
 	}
 
-	matchNode.Value = value
+	matchNode.value = value
 
 	return nil
 
@@ -53,7 +53,7 @@ func (t *AVLTree) Update(key []byte, value []byte) error {
 func (t *AVLTree) Add(key []byte, value []byte) error {
 
 	if t.trunk == nil {
-		t.trunk = NewAVLLeaf(nil, key, value)
+		t.trunk = newNodeLeaf(nil, key, value)
 		return nil
 	}
 
@@ -64,9 +64,9 @@ func (t *AVLTree) Add(key []byte, value []byte) error {
 	}
 
 	if leftChild {
-		parNode.LeftNode = NewAVLLeaf(parNode, key, value)
+		parNode.leftNode = newNodeLeaf(parNode, key, value)
 	} else {
-		parNode.RightNode = NewAVLLeaf(parNode, key, value)
+		parNode.rightNode = newNodeLeaf(parNode, key, value)
 	}
 
 	//Update height and balance
@@ -85,29 +85,29 @@ func (t *AVLTree) Remove(key []byte) error {
 	//Update height and balance before leaving
 	defer matchNode.updateHeightBalanceRecursive(t)
 
-	setParentsChild := func(setTo *AVLNode) {
-		if matchNode.ParNode.LeftNode == matchNode {
-			matchNode.ParNode.LeftNode = setTo
+	setParentsChild := func(setTo *node) {
+		if matchNode.parNode.leftNode == matchNode {
+			matchNode.parNode.leftNode = setTo
 		} else {
-			matchNode.ParNode.RightNode = setTo
+			matchNode.parNode.rightNode = setTo
 		}
 
 		matchNode = setTo
 	}
 
 	//If leaf node being deleted, just delete it
-	if matchNode.Height == 0 {
+	if matchNode.height == 0 {
 		setParentsChild(nil)
 		return nil
 	}
 
 	//If there is only one branch off of node to delete
 	//  then replace node with one branch node
-	if matchNode.RightNode == nil {
-		setParentsChild(matchNode.LeftNode)
+	if matchNode.rightNode == nil {
+		setParentsChild(matchNode.leftNode)
 		return nil
-	} else if matchNode.LeftNode == nil {
-		setParentsChild(matchNode.RightNode)
+	} else if matchNode.leftNode == nil {
+		setParentsChild(matchNode.rightNode)
 		return nil
 	}
 
@@ -119,9 +119,9 @@ func (t *AVLTree) Remove(key []byte) error {
 	//  if the longest branch is the greatest (rightmost) branch.
 	//  if the branches are balanced, use the greatest (rightmost) branch
 	//Methodology inspired by: http://www.mathcs.emory.edu/~cheung/Courses/323/Syllabus/Trees/AVL-delete.html
-	if matchNode.RightNode != nil && matchNode.LeftNode != nil {
+	if matchNode.rightNode != nil && matchNode.leftNode != nil {
 		//Determine the direction to replace, and node to switch from
-		var replaceFromNode *AVLNode
+		var replaceFromNode *node
 		if matchNode.getBalance() >= 0 {
 			replaceFromNode = matchNode.findMin()
 		} else {
@@ -129,14 +129,14 @@ func (t *AVLTree) Remove(key []byte) error {
 		}
 
 		//Temporarily save the replacement key and value, delete its original position
-		replaceFromKey := replaceFromNode.Key
-		replaceFromValue := replaceFromNode.Value
+		replaceFromKey := replaceFromNode.key
+		replaceFromValue := replaceFromNode.value
 		t.Remove(replaceFromKey) //TODO verify that this wont create pointer problems based the fact that a rebalance will occur
 
 		//Now replace the key and value for the target node to delete
 		// the branches of this node to stay the same
-		matchNode.Key = replaceFromKey
-		matchNode.Value = replaceFromValue
+		matchNode.key = replaceFromKey
+		matchNode.value = replaceFromValue
 		return nil
 	}
 

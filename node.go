@@ -1,163 +1,151 @@
-//      __      ___        _______ _____  ______ ______
-//     /\ \    / / |      |__   __|  __ \|  ____|  ____|
-//    /  \ \  / /| |         | |  | |__) | |__  | |__
-//   / /\ \ \/ / | |         | |  |  _  /|  __| |  __|
-//  / ____ \  /  | |____     | |  | | \ \| |____| |____
-// /_/    \_\/   |______|    |_|  |_|  \_\______|______|
-//
-
 package AVL_Tree
 
 import (
 	"bytes"
 	"errors"
+
+	"golang.org/x/crypto/sha3"
 )
 
-type AVLNode struct {
-	Key       []byte   //node key
-	Value     []byte   //node value
-	Height    int      //
-	ParNode   *AVLNode //Parent AVL node
-	LeftNode  *AVLNode //Left node with key less than current node
-	RightNode *AVLNode //Right node with key greater than current node
+type node struct {
+	key       []byte //node key
+	value     []byte //node value
+	height    int    //
+	parNode   *node  //Parent AVL node
+	leftNode  *node  //Left node with key less than current node
+	rightNode *node  //Right node with key greater than current node
 }
 
-func NewAVLLeaf(
-	parNode *AVLNode,
+func newNodeLeaf(
+	parNode *node,
 	key,
-	value []byte) *AVLNode {
+	value []byte) *node {
 
-	return &AVLNode{
-		Key:       key,
-		Value:     value,
-		Height:    0,
-		ParNode:   parNode,
-		LeftNode:  nil,
-		RightNode: nil,
+	return &node{
+		key:       key,
+		value:     value,
+		height:    0,
+		parNode:   parNode,
+		leftNode:  nil,
+		rightNode: nil,
 	}
 }
 
+func getHash(dataInput string) []byte {
+	//performing the hash
+	hashBytes := sha3.Sum256([]byte(dataInput))
+	return hashBytes[:]
+}
+
 //return the node position of either the matching node or the locatation to place a node
-func (n *AVLNode) findMatchPosition(searchKey []byte) (match bool, position *AVLNode) {
+func (n *node) findMatchPosition(searchkey []byte) (match bool, position *node) {
 
 	if n == nil {
 		return false, n
 	}
 
 	//The result will be 0 if a==b, -1 if a < b, and +1 if a > b
-	switch bytes.Compare(searchKey, n.Key) {
+	switch bytes.Compare(searchkey, n.key) {
 	case 0:
 		return true, n
 	case -1:
-		return n.LeftNode.findMatchPosition(searchKey) //send a reference to the parent node down for returning
+		return n.leftNode.findMatchPosition(searchkey) //send a reference to the parent node down for returning
 	case 1:
-		return n.RightNode.findMatchPosition(searchKey)
+		return n.rightNode.findMatchPosition(searchkey)
 	}
 
 	return
 }
 
 //return the node position of either the matching node or the locatation to place a node
-func (n *AVLNode) findAddPosition(searchKey []byte) (leftChild bool, parNode *AVLNode, err error) {
+func (n *node) findAddPosition(searchKey []byte) (leftChild bool, parNode *node, err error) {
 
 	if n == nil {
 		return false, n, errors.New("Node is nil")
 	}
 
 	//The result will be 0 if a==b, -1 if a < b, and +1 if a > b
-	switch bytes.Compare(searchKey, n.Key) {
+	switch bytes.Compare(searchKey, n.key) {
 	case 0:
 		return false, n, errors.New("Duplicate key found")
 	case -1:
-		if n.LeftNode == nil {
+		if n.leftNode == nil {
 			return true, n, nil
 		}
-		return n.LeftNode.findAddPosition(searchKey) //send a reference to the parent node down for returning
+		return n.leftNode.findAddPosition(searchKey) //send a reference to the parent node down for returning
 	case 1:
-		if n.RightNode == nil {
+		if n.rightNode == nil {
 			return false, n, nil
 		}
-		return n.RightNode.findAddPosition(searchKey)
+		return n.rightNode.findAddPosition(searchKey)
 	}
 
 	return
 }
 
-func (n *AVLNode) findMin() *AVLNode {
-	if n.LeftNode == nil {
+func (n *node) findMin() *node {
+	if n.leftNode == nil {
 		return n
 	}
-	return n.LeftNode.findMin()
+	return n.leftNode.findMin()
 }
 
-func (n *AVLNode) findMax() *AVLNode {
-	if n.RightNode == nil {
+func (n *node) findMax() *node {
+	if n.rightNode == nil {
 		return n
 	}
-	return n.RightNode.findMax()
+	return n.rightNode.findMax()
 }
 
 //updates the height of the current node
-func (n *AVLNode) updateHeight() {
+func (n *node) updateHeight() {
 
 	maxHeight := -1
 
-	if n.LeftNode != nil {
-		maxHeight = n.LeftNode.Height
+	if n.leftNode != nil {
+		maxHeight = n.leftNode.height
 	}
 
-	if n.RightNode != nil && n.RightNode.Height > maxHeight {
-		maxHeight = n.RightNode.Height
+	if n.rightNode != nil && n.rightNode.height > maxHeight {
+		maxHeight = n.rightNode.height
 	}
 
-	n.Height = maxHeight + 1
+	n.height = maxHeight + 1
 
 	return
 }
+func (n *node) getBalance() int {
 
-//currently only used for testing purposes
-func (n *AVLNode) updateHeightRecursive() {
-	if n == nil {
-		return
+	rightHeight := 0
+	leftHeight := 0
+
+	if n.rightNode != nil {
+		rightHeight = n.rightNode.height + 1
 	}
-	n.updateHeight()
-	n.ParNode.updateHeightRecursive()
 
-	return
+	if n.leftNode != nil {
+		leftHeight = n.leftNode.height + 1
+	}
+
+	return rightHeight - leftHeight
 }
 
-func (n *AVLNode) getBalance() int {
-
-	RightHeight := 0
-	LeftHeight := 0
-
-	if n.RightNode != nil {
-		RightHeight = n.RightNode.Height + 1
-	}
-
-	if n.LeftNode != nil {
-		LeftHeight = n.LeftNode.Height + 1
-	}
-
-	return RightHeight - LeftHeight
-}
-
-func (n *AVLNode) updateBalance(tr *AVLTree) {
+func (n *node) updateBalance(tr *AVLTree) {
 	bal := n.getBalance()
 
 	switch {
 	case bal > 1:
-		if n.RightNode.getBalance() > 0 { //Left Left Rotation
+		if n.rightNode.getBalance() > 0 { //Left Left Rotation
 			n.rotate(tr, true) //rotateLeft
 		} else { //Right Left Rotation
-			n.RightNode.rotate(tr, false) //rotateRight
+			n.rightNode.rotate(tr, false) //rotateRight
 			n.rotate(tr, true)
 		}
 	case bal < -1:
-		if n.LeftNode.getBalance() < 0 { //Right Right Rotation
+		if n.leftNode.getBalance() < 0 { //Right Right Rotation
 			n.rotate(tr, false)
 		} else { //Left Right Rotation
-			n.LeftNode.rotate(tr, true)
+			n.leftNode.rotate(tr, true)
 			n.rotate(tr, false)
 		}
 	}
@@ -168,44 +156,44 @@ func (n *AVLNode) updateBalance(tr *AVLTree) {
 //update the height and  balances from the area of action upwards
 // this will allow the tree to be balanced in the most
 // compact way
-func (n *AVLNode) updateHeightBalanceRecursive(tr *AVLTree) {
+func (n *node) updateHeightBalanceRecursive(tr *AVLTree) {
 	if n == nil {
 		return
 	}
 
 	n.updateHeight()
 	n.updateBalance(tr)
-	n.ParNode.updateHeightBalanceRecursive(tr)
+	n.parNode.updateHeightBalanceRecursive(tr)
 
 	return
 }
 
 //rotate function used by rotateRight/Left
-func (n *AVLNode) rotate(tr *AVLTree, left bool) {
+func (n *node) rotate(tr *AVLTree, left bool) {
 
-	var nodeUp *AVLNode
+	var nodeUp *node
 
 	//old parent takes owernership of left nodes right child as its left child
 	if left {
-		nodeUp = n.RightNode
-		n.RightNode = nodeUp.LeftNode
-		nodeUp.LeftNode = n
+		nodeUp = n.rightNode
+		n.rightNode = nodeUp.leftNode
+		nodeUp.leftNode = n
 	} else {
-		nodeUp = n.LeftNode
-		n.LeftNode = nodeUp.RightNode
-		nodeUp.RightNode = n
+		nodeUp = n.leftNode
+		n.leftNode = nodeUp.rightNode
+		nodeUp.rightNode = n
 	}
 
 	//parent swap
-	nodeUp.ParNode = n.ParNode
-	n.ParNode = nodeUp
+	nodeUp.parNode = n.parNode
+	n.parNode = nodeUp
 
-	if nodeUp.ParNode != nil {
+	if nodeUp.parNode != nil {
 		//update the new parents (old grandparents) child too
-		if nodeUp.ParNode.LeftNode == n {
-			nodeUp.ParNode.LeftNode = nodeUp
+		if nodeUp.parNode.leftNode == n {
+			nodeUp.parNode.leftNode = nodeUp
 		} else {
-			nodeUp.ParNode.RightNode = nodeUp
+			nodeUp.parNode.rightNode = nodeUp
 		}
 	} else {
 		//if no parents then set the nodeUp as the new tree trunk
@@ -219,31 +207,46 @@ func (n *AVLNode) rotate(tr *AVLTree, left bool) {
 	return
 }
 
+/////////////////////////////
+// Testing Functions
+/////////////////////////////
+
+//currently only used for testing purposes
+func (n *node) updateHeightRecursive() {
+	if n == nil {
+		return
+	}
+	n.updateHeight()
+	n.parNode.updateHeightRecursive()
+
+	return
+}
+
 //used for testing purposes
 //recursively add all the downstream
-func (n *AVLNode) printStructure() (out string) {
+func (n *node) printStructure() (out string) {
 
-	parKey, leftKey, rightKey := "nil", "nil", "nil"
+	parkey, leftkey, rightkey := "nil", "nil", "nil"
 
-	if n.ParNode != nil {
-		parKey = string(n.ParNode.Key[:])
+	if n.parNode != nil {
+		parkey = string(n.parNode.key[:])
 	}
 
-	if n.LeftNode != nil {
-		out += n.LeftNode.printStructure()
-		leftKey = string(n.LeftNode.Key[:])
+	if n.leftNode != nil {
+		out += n.leftNode.printStructure()
+		leftkey = string(n.leftNode.key[:])
 	}
 
-	if n.RightNode != nil {
-		out += n.RightNode.printStructure()
-		rightKey = string(n.RightNode.Key[:])
+	if n.rightNode != nil {
+		out += n.rightNode.printStructure()
+		rightkey = string(n.rightNode.key[:])
 	}
 
-	out += "key: " + string(n.Key[:]) +
-		" value: " + string(n.Value[:]) +
-		" parent: " + parKey +
-		" leftChild: " + leftKey +
-		" rightChild: " + rightKey +
+	out += "key: " + string(n.key[:]) +
+		" value: " + string(n.value[:]) +
+		" parent: " + parkey +
+		" leftChild: " + leftkey +
+		" rightChild: " + rightkey +
 		"\n"
 
 	return
