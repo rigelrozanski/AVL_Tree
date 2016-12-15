@@ -15,6 +15,9 @@ import (
 
 func TestAVLNode(t *testing.T) {
 
+	//dummy tree for feeding into operations (normally used for replacing for swapping the trunk)
+	tr := NewAVLTree()
+
 	//Manually create a basic AVL tree
 	var a, b, c *AVLNode
 
@@ -115,32 +118,32 @@ func TestAVLNode(t *testing.T) {
 	}
 
 	//test manual rotation
-	a.rotate(true)
+	a.rotate(&tr, true)
 	testHeightsLog(0, 1, 0, b)
 
 	//test rotation with updateBalance
 	setConfig1()
 	c.updateHeightRecursive()
-	a.updateBalance()
+	a.updateBalance(&tr)
 	testHeightsLog(0, 1, 0, b)
 
 	//test rotation with updateHeightBalanceRecursive
 	setConfig1()
-	c.updateHeightBalanceRecursive()
+	c.updateHeightBalanceRecursive(&tr)
 	testHeightsLog(0, 1, 0, b)
 
 	//test some alternate configurations to see if they perform the adequate rotations
 	//  note the operations is always taken from the leaf node (which is where they would be called)
 	setConfig2()
-	b.updateHeightBalanceRecursive()
+	b.updateHeightBalanceRecursive(&tr)
 	testHeightsLog(0, 1, 0, b)
 
 	setConfig3()
-	a.updateHeightBalanceRecursive()
+	a.updateHeightBalanceRecursive(&tr)
 	testHeightsLog(0, 1, 0, b)
 
 	setConfig4()
-	b.updateHeightBalanceRecursive()
+	b.updateHeightBalanceRecursive(&tr)
 	testHeightsLog(0, 1, 0, b)
 
 }

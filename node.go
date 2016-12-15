@@ -142,23 +142,23 @@ func (n *AVLNode) getBalance() int {
 	return RightHeight - LeftHeight
 }
 
-func (n *AVLNode) updateBalance() {
+func (n *AVLNode) updateBalance(tr *AVLTree) {
 	bal := n.getBalance()
 
 	switch {
 	case bal > 1:
 		if n.RightNode.getBalance() > 0 { //Left Left Rotation
-			n.rotate(true) //rotateLeft
+			n.rotate(tr, true) //rotateLeft
 		} else { //Right Left Rotation
-			n.RightNode.rotate(false) //rotateRight
-			n.rotate(true)
+			n.RightNode.rotate(tr, false) //rotateRight
+			n.rotate(tr, true)
 		}
 	case bal < -1:
 		if n.LeftNode.getBalance() < 0 { //Right Right Rotation
-			n.rotate(false)
+			n.rotate(tr, false)
 		} else { //Left Right Rotation
-			n.LeftNode.rotate(true)
-			n.rotate(false)
+			n.LeftNode.rotate(tr, true)
+			n.rotate(tr, false)
 		}
 	}
 
@@ -168,20 +168,20 @@ func (n *AVLNode) updateBalance() {
 //update the height and  balances from the area of action upwards
 // this will allow the tree to be balanced in the most
 // compact way
-func (n *AVLNode) updateHeightBalanceRecursive() {
+func (n *AVLNode) updateHeightBalanceRecursive(tr *AVLTree) {
 	if n == nil {
 		return
 	}
 
 	n.updateHeight()
-	n.updateBalance()
-	n.ParNode.updateHeightBalanceRecursive()
+	n.updateBalance(tr)
+	n.ParNode.updateHeightBalanceRecursive(tr)
 
 	return
 }
 
 //rotate function used by rotateRight/Left
-func (n *AVLNode) rotate(left bool) {
+func (n *AVLNode) rotate(tr *AVLTree, left bool) {
 
 	var nodeUp *AVLNode
 
@@ -200,13 +200,16 @@ func (n *AVLNode) rotate(left bool) {
 	nodeUp.ParNode = n.ParNode
 	n.ParNode = nodeUp
 
-	//update the grandparents child too
 	if nodeUp.ParNode != nil {
+		//update the new parents (old grandparents) child too
 		if nodeUp.ParNode.LeftNode == n {
 			nodeUp.ParNode.LeftNode = nodeUp
 		} else {
 			nodeUp.ParNode.RightNode = nodeUp
 		}
+	} else {
+		//if no parents then set the nodeUp as the new tree trunk
+		tr.trunk = nodeUp
 	}
 
 	//update effected heights

@@ -70,7 +70,7 @@ func (t *AVLTree) Add(key []byte, value []byte) error {
 	}
 
 	//Update height and balance
-	parNode.updateHeightBalanceRecursive()
+	parNode.updateHeightBalanceRecursive(t)
 
 	return nil
 }
@@ -84,7 +84,7 @@ func (t *AVLTree) Remove(key []byte) error {
 	}
 
 	//Update height and balance
-	defer matchNode.updateHeightBalanceRecursive()
+	defer matchNode.updateHeightBalanceRecursive(t)
 
 	//If leaf node being deleted, just delete it
 	if matchNode.Height == 0 {
