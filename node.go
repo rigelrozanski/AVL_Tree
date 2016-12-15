@@ -22,15 +22,19 @@ func newNodeLeaf(
 	key,
 	value []byte) *node {
 
-	return &node{
+	out := &node{
 		key:       key,
 		value:     value,
 		height:    0,
-		hash:      getHash(appendByte(key, value)),
+		hash:      nil,
 		parNode:   parNode,
 		leftNode:  nil,
 		rightNode: nil,
 	}
+
+	out.updateHash()
+
+	return out
 }
 
 /////////////////////////////
@@ -50,12 +54,12 @@ func (n *node) findNode(searchkey []byte) *node {
 	case 0:
 		return n
 	case -1:
-		return n.leftNode.findMatchPosition(searchkey) //send a reference to the parent node down for returning
+		return n.leftNode.findNode(searchkey) //send a reference to the parent node down for returning
 	case 1:
-		return n.rightNode.findMatchPosition(searchkey)
+		return n.rightNode.findNode(searchkey)
 	}
 
-	return
+	return nil
 }
 
 //return the node position of either the matching node or the locatation to place a node
@@ -99,41 +103,34 @@ func (n *node) findMax() *node {
 }
 
 /////////////////////////////
-// Crypto Functions
-/////////////////////////////
-
-//update the hash value stored in a node
-// for branch nodes hash the concatenated hash values of branches
-// for leaf nodes hash the concatenated record key and value
-func (n *node) updateNodeHash() {
-	switch {
-	case n.leftNode != nil && n.rightNode != nil:
-		n.hash = getHash(appendByte(n.leftNode.Hash, n.rightNode.Hash))
-	case n.leftNode == nil && n.rightNode != nil:
-		n.hash = getHash(appendByte(n.rightNode.Hash))
-	case n.leftNode != nil && n.rightNode == nil:
-		n.hash = getHash(appendByte(n.leftNode.Hash))
-	case n.leftNode == nil && n.rightNode == nil:
-		n.hash = getHash(appendByte(n.key, n.value))
-	}
-}
-
-func appendByte(in1, in2 []byte) []byte {
-	return append(in1, in2...)
-}
-
-func getHash(in []byte) []byte {
-	hashBytes := sha3.Sum256(in)
-	return hashBytes[:]
-}
-
-/////////////////////////////
 // Update Functions
 /////////////////////////////
 
 func (n *node) updateHeightAndHash() {
 	n.updateHeight()
 	n.updateHash()
+}
+
+//update the hash value stored in a node
+// for branch nodes hash the concatenated hash values of branches
+// for leaf nodes hash the concatenated record key and value
+func (n *node) updateHash() {
+
+	var hashInput []byte = nil
+
+	switch {
+	case n.leftNode != nil && n.rightNode != nil:
+		hashInput = append(n.leftNode.hash, n.rightNode.hash...)
+	case n.leftNode == nil && n.rightNode != nil:
+		hashInput = n.rightNode.hash
+	case n.leftNode != nil && n.rightNode == nil:
+		hashInput = n.leftNode.hash
+	case n.leftNode == nil && n.rightNode == nil:
+		hashInput = append(n.key, n.value...)
+	}
+
+	hashBytes := sha3.Sum256(hashInput)
+	n.hash = hashBytes[:]
 }
 
 //updates the height of the current node

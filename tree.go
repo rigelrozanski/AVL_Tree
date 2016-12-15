@@ -23,15 +23,19 @@ func NewAVLTree() AVLTree {
 	}
 }
 
-func (t *AVLTree) GetHash() (hash []byte) {
+//returns the merkle root hash (hash of the trunk node)
+func (t *AVLTree) GetHash() (hash []byte, err error) {
 	if t.trunk == nil {
 		err = errors.New("empty tree")
 		return
 	}
 
-	return t.trunk.hash
+	hash = t.trunk.hash
+
+	return
 }
 
+//Get a value from the tree from an existing key
 func (t *AVLTree) Get(key []byte) (value []byte, err error) {
 	if t.trunk == nil {
 		err = errors.New("empty tree")
@@ -49,13 +53,13 @@ func (t *AVLTree) Get(key []byte) (value []byte, err error) {
 	return
 }
 
+//Update a value from the tree for an already existing key
 func (t *AVLTree) Update(key []byte, value []byte) error {
 	if t.trunk == nil {
-		err = errors.New("empty tree")
-		return
+		return errors.New("empty tree")
 	}
 
-	matchNode := t.trunk.findMatchNode(key)
+	matchNode := t.trunk.findNode(key)
 
 	if matchNode == nil {
 		return errors.New("key not found")
@@ -67,6 +71,7 @@ func (t *AVLTree) Update(key []byte, value []byte) error {
 
 }
 
+//Add a new key-value to the tree for a non-existent key
 func (t *AVLTree) Add(key []byte, value []byte) error {
 
 	if t.trunk == nil {
@@ -92,14 +97,14 @@ func (t *AVLTree) Add(key []byte, value []byte) error {
 	return nil
 }
 
+//Remove a key-value pair from the tree
 func (t *AVLTree) Remove(key []byte) error {
 	if t.trunk == nil {
-		err = errors.New("empty tree")
-		return
+		return errors.New("empty tree")
 	}
 
 	matchNode := t.trunk.findNode(key)
-	if matchNode {
+	if matchNode == nil {
 		return errors.New("key not found")
 	}
 
