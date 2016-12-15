@@ -11,7 +11,7 @@ func TestAVLTree(t *testing.T) {
 	tr := NewAVLTree()
 
 	/////////////////////////////////////
-	// core sub-test function variables
+	// Core sub-test function variables
 	/////////////////////////////////////
 
 	printErr := func(err error) {
@@ -20,11 +20,11 @@ func TestAVLTree(t *testing.T) {
 		}
 	}
 
-	//sub-test function used from heightBalanceNodeTest & heightBalanceTrunkTest
-	//test the height and balance against expected values for a node
+	//Sub-test function used from heightBalanceNodeTest & heightBalanceTrunkTest
+	//Test the height and balance against expected values for a node
 	heightBalanceSubTest := func(n *node, expdHeight, expdBalance int) {
 
-		//test balance
+		//Test balance
 		bal := n.getBalance()
 		if bal != expdBalance {
 			t.Errorf("bad balance for %v, expected %v found %v ",
@@ -32,7 +32,7 @@ func TestAVLTree(t *testing.T) {
 			t.Log(n.printStructure())
 		}
 
-		//test height
+		//Test height
 		height := n.height
 		if height != expdHeight {
 			t.Errorf("bad height for %v, expected %v found %v ",
@@ -41,12 +41,12 @@ func TestAVLTree(t *testing.T) {
 		}
 	}
 
-	//test the height and balance against expected values for a node retrieved from key
+	//Test the height and balance against expected values for a node retrieved from key
 	heightBalanceNodeTest := func(nodeKey string, expdHeight, expdBalance int) {
 		heightBalanceSubTest(tr.trunk.findNode([]byte(nodeKey)), expdHeight, expdBalance)
 	}
 
-	//test the trunk key, height, and balance against expected values
+	//Test the trunk key, height, and balance against expected values
 	heightBalanceTrunkTest := func(expdTrunkKey string, expdHeight, expdBalance int) {
 
 		//test trunk node key
@@ -61,9 +61,10 @@ func TestAVLTree(t *testing.T) {
 		heightBalanceSubTest(tr.trunk, expdHeight, expdBalance)
 	}
 
-	//test retrieving a value for a key
-	// the parameter expectedExists specifies whether or not
-	// it is expected that the key will be found (used for testing bad retrievals)
+	//Test retrieving a value for a key.
+	// The parameter expectedExists specifies whether or not
+	// it is expected that the key will be found
+	// (used for testing bad retrievals)
 	retrieveTest := func(key, expectedVal string, expectedExists bool) {
 		recievedVal, err := tr.Get([]byte(key))
 		if expectedExists {
@@ -84,8 +85,7 @@ func TestAVLTree(t *testing.T) {
 	// TESTS
 	/////////////////////////////////////
 
-	//Test adding several values to the AVL Tree
-	//  at the same time test how the heights of the tr react
+	//Test for expected structures when adding key-value pairs to the AVL Tree
 	//Expected tr structures:
 	// a  a      b      b       b          d          d
 	//     \    / \    / \     / \        / \        /  \
@@ -162,7 +162,8 @@ func TestAVLTree(t *testing.T) {
 		t.Errorf("expected to receive an error when attempting to update non-existent value")
 	}
 
-	//Test removing saved values from the tr
+	//Test removing saved values from the tr.
+	//  Simultaneously test whether the hashes are updated
 	//Expected tr structures:
 	//      d         d      e
 	//     /  \      / \    / \
@@ -170,7 +171,10 @@ func TestAVLTree(t *testing.T) {
 	//    \    /       /
 	//     c  e       e
 
-	//removal of leafs
+	//starting hash before removal
+	hash1 := tr.trunk.hash
+
+	//Removal of leafs
 	printErr(tr.Remove([]byte("a")))
 	printErr(tr.Remove([]byte("g")))
 	heightBalanceTrunkTest("d", 2, 0)
@@ -179,14 +183,19 @@ func TestAVLTree(t *testing.T) {
 	heightBalanceNodeTest("c", 0, 0)
 	heightBalanceNodeTest("e", 0, 0)
 
-	//removal of a branch with one child nodes
+	//test to see if the hash has changed
+	if bytes.Compare(tr.trunk.hash, hash1) == 0 {
+		t.Errorf("expected hash to change after having deleted files")
+	}
+
+	//Removal of a branch with one child nodes
 	printErr(tr.Remove([]byte("b")))
 	heightBalanceTrunkTest("d", 2, 1)
 	heightBalanceNodeTest("f", 1, -1)
 	heightBalanceNodeTest("c", 0, 0)
 	heightBalanceNodeTest("e", 0, 0)
 
-	//removal of a branch with one child nodes
+	//Removal of a branch with one child nodes
 	printErr(tr.Remove([]byte("d")))
 	heightBalanceTrunkTest("e", 1, 0)
 	heightBalanceNodeTest("c", 0, 0)

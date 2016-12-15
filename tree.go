@@ -23,7 +23,7 @@ func NewAVLTree() AVLTree {
 	}
 }
 
-//returns the merkle root hash (hash of the trunk node)
+//Returns the merkle root hash (hash of the trunk node)
 func (t *AVLTree) GetHash() (hash []byte, err error) {
 	if t.trunk == nil {
 		err = errors.New("empty tree")
@@ -111,6 +111,8 @@ func (t *AVLTree) Remove(key []byte) error {
 	//Update height and balance before leaving
 	defer matchNode.updateHeightBalanceRecursive(t)
 
+	//Replace the matchNode position held under the parents node
+	// to the input setTo
 	setParentsChild := func(setTo *node) {
 		if matchNode.parNode.leftNode == matchNode {
 			matchNode.parNode.leftNode = setTo
@@ -139,12 +141,12 @@ func (t *AVLTree) Remove(key []byte) error {
 
 	//If there are two branches off of node to delete
 	//  determine the longest sub branch and on that branch
-	//  replace the node; with the greatest (rightmost) key down-branch
-	//  if the longest branch is the smallest (leftmost) branch,
-	//  OR with the smallest (leftmost) key found downbranch
-	//  if the longest branch is the greatest (rightmost) branch.
-	//  if the branches are balanced, use the greatest (rightmost) branch
-	//Methodology inspired by: http://www.mathcs.emory.edu/~cheung/Courses/323/Syllabus/Trees/AVL-delete.html
+	//  replace the node; with the right-most key down-branch
+	//  if the longest branch is the left-most branch,
+	//  OR with the left-most key found downbranch
+	//  if the longest branch is the right-most branch.
+	//  If the branches are balanced, use the right-most branch.
+	//  Methodology inspired by: http://www.mathcs.emory.edu/~cheung/Courses/323/Syllabus/Trees/AVL-delete.html
 	if matchNode.rightNode != nil && matchNode.leftNode != nil {
 		//Determine the direction to replace, and node to switch from
 		var replaceFromNode *node

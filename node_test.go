@@ -6,7 +6,7 @@ import (
 
 func Testnode(t *testing.T) {
 
-	//dummy tree for feeding into operations (normally used for replacing for swapping the trunk)
+	//Dummy tree for feeding into operations (normally used for replacing for swapping the trunk)
 	tr := NewAVLTree()
 
 	//Manually create a basic AVL tree
@@ -81,21 +81,21 @@ func Testnode(t *testing.T) {
 		}
 	}
 
-	//test a non-recursive height update
+	//Test a non-recursive height update
 	b.updateHeight()
-	heightBalanceTest(b, 1, 0) //note the balance has not been updated so should still 0
+	heightBalanceTest(b, 1, 0) //Note the balance has not been updated so should still 0
 
-	//test a non-recursive balance update
+	//Test a non-recursive balance update
 	b.updateBalance(&tr)
-	heightBalanceTest(b, 1, 1) //note the balance has not been updated so should still 0
+	heightBalanceTest(b, 1, 1)
 
-	//test a recursive height update (from leaf to trunk)
+	//Test a recursive height update (from leaf to trunk)
 	c.updateHeightBalanceRecursive(&tr)
 	heightBalanceTest(c, 0, 0)
 	heightBalanceTest(b, 1, 1)
 	heightBalanceTest(a, 2, 2)
 
-	//test rebalance to the expected position:
+	//Test rebalance to the expected position:
 	//    b
 	//   / \
 	//  a   c
@@ -106,22 +106,23 @@ func Testnode(t *testing.T) {
 		heightBalanceTest(c, 0, 0)
 	}
 
-	//test manual rotation
+	//Test manual rotation
 	a.rotate(&tr, true)
 	testStructure()
 
-	//test rotation with updateBalance
+	//Test rotation with updateBalance
 	setConfig1()
 	c.updateHeightBalanceRecursive(&tr)
 	testStructure()
 
-	//test rotation with updateHeightBalanceRecursive
+	//Test rotation with updateHeightBalanceRecursive
 	setConfig1()
 	c.updateHeightBalanceRecursive(&tr)
 	testStructure()
 
-	//test some alternate configurations to see if they perform the adequate rotations
-	//  note the operations is always taken from the leaf node (which is where they would be called)
+	//Test some alternate configurations to see if they perform the adequate rotations.
+	//Note the operations is always taken from the leaf node (which is where they would be called)
+	//  under the tree.go operations.
 	setConfig2()
 	b.updateHeightBalanceRecursive(&tr)
 	testStructure()
@@ -133,5 +134,4 @@ func Testnode(t *testing.T) {
 	setConfig4()
 	b.updateHeightBalanceRecursive(&tr)
 	testStructure()
-
 }

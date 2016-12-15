@@ -8,15 +8,19 @@ import (
 )
 
 type node struct {
-	key       []byte //node key
-	value     []byte //node value
-	height    int    //
+	key       []byte
+	value     []byte
+	height    int
 	hash      []byte
 	parNode   *node //Parent AVL node
 	leftNode  *node //Left node with key less than current node
 	rightNode *node //Right node with key greater than current node
 }
 
+//Generate a new leaf node with parent and hash
+// note that the parents child node does not get
+// assigned within this function and must be assigned
+// wherever this function is called
 func newNodeLeaf(
 	parNode *node,
 	key,
@@ -41,7 +45,7 @@ func newNodeLeaf(
 // Search Functions
 /////////////////////////////
 
-//return the node with the matching key
+//Return the node with the matching key,
 // if no matching node is found return nil
 func (n *node) findNode(searchkey []byte) *node {
 
@@ -49,7 +53,7 @@ func (n *node) findNode(searchkey []byte) *node {
 		return nil
 	}
 
-	//The result will be 0 if a==b, -1 if a < b, and +1 if a > b
+	//Compare(a,b) will be 0 if a==b, -1 if a < b, and +1 if a > b
 	switch bytes.Compare(searchkey, n.key) {
 	case 0:
 		return n
@@ -62,27 +66,34 @@ func (n *node) findNode(searchkey []byte) *node {
 	return nil
 }
 
-//return the node position of either the matching node or the locatation to place a node
-func (n *node) findAddPosition(searchKey []byte) (leftChild bool, parNode *node, err error) {
+//Return the placement location for a new node to add.
+// The node position is represented by the parent node (parNode)
+// as well as the position on that parent node which the child
+// should be placed on represented by the boolean leftChild variable
+// (aka. if leftChild is true place as left child position of parent,
+// if false place on the right child position).
+func (n *node) findAddPosition(placeKey []byte) (leftChild bool, parNode *node, err error) {
 
 	if n == nil {
 		return false, n, errors.New("Node is nil")
 	}
 
-	//The result will be 0 if a==b, -1 if a < b, and +1 if a > b
-	switch bytes.Compare(searchKey, n.key) {
+	//Compare(a,b) will be 0 if a==b, -1 if a < b, and +1 if a > b
+	switch bytes.Compare(placeKey, n.key) {
 	case 0:
 		return false, n, errors.New("Duplicate key found")
 	case -1:
 		if n.leftNode == nil {
 			return true, n, nil
 		}
-		return n.leftNode.findAddPosition(searchKey) //send a reference to the parent node down for returning
+
+		//Send a reference to the parent node down for returning
+		return n.leftNode.findAddPosition(placeKey)
 	case 1:
 		if n.rightNode == nil {
 			return false, n, nil
 		}
-		return n.rightNode.findAddPosition(searchKey)
+		return n.rightNode.findAddPosition(placeKey)
 	}
 
 	return
@@ -111,9 +122,9 @@ func (n *node) updateHeightAndHash() {
 	n.updateHash()
 }
 
-//update the hash value stored in a node
-// for branch nodes hash the concatenated hash values of branches
-// for leaf nodes hash the concatenated record key and value
+//Update the hash value stored in a node.
+// For branch nodes hash the concatenated hash values of branches.
+// For leaf nodes hash the concatenated record key and value.
 func (n *node) updateHash() {
 
 	var hashInput []byte = nil
@@ -133,7 +144,7 @@ func (n *node) updateHash() {
 	n.hash = hashBytes[:]
 }
 
-//updates the height of the current node
+//Update the height of the current node.
 func (n *node) updateHeight() {
 
 	maxHeight := -1
@@ -150,6 +161,8 @@ func (n *node) updateHeight() {
 
 	return
 }
+
+//Retrieve the balance for current node.
 func (n *node) getBalance() int {
 
 	rightHeight := 0
@@ -166,6 +179,8 @@ func (n *node) getBalance() int {
 	return rightHeight - leftHeight
 }
 
+//Update balance for current node.
+// The tree (tr) must be passed in in order to update the trunk node value if it changes.
 func (n *node) updateBalance(tr *AVLTree) {
 	bal := n.getBalance()
 
@@ -189,8 +204,8 @@ func (n *node) updateBalance(tr *AVLTree) {
 	return
 }
 
-//update the height and  balances from the area of action upwards
-// this will allow the tree to be balanced in the most compact way
+//Update the height and  balances from the area of action upwards.
+// This will allow the tree to be balanced in the most compact way.
 func (n *node) updateHeightBalanceRecursive(tr *AVLTree) {
 	if n == nil {
 		return
@@ -203,12 +218,13 @@ func (n *node) updateHeightBalanceRecursive(tr *AVLTree) {
 	return
 }
 
-//rotate function used by rotateRight/Left
+//Rotate function, if left is true, this will be a left rotation
+// otherwise function will perform a right rotation.
 func (n *node) rotate(tr *AVLTree, left bool) {
 
 	var nodeUp *node
 
-	//old parent takes owernership of left nodes right child as its left child
+	//Old parent takes owernership of left nodes right child as its left child
 	if left {
 		nodeUp = n.rightNode
 		n.rightNode = nodeUp.leftNode
@@ -219,23 +235,23 @@ func (n *node) rotate(tr *AVLTree, left bool) {
 		nodeUp.rightNode = n
 	}
 
-	//parent swap
+	//Parent swap
 	nodeUp.parNode = n.parNode
 	n.parNode = nodeUp
 
 	if nodeUp.parNode != nil {
-		//update the new parents (old grandparents) child too
+		//Update the new parents (old grandparents) child too
 		if nodeUp.parNode.leftNode == n {
 			nodeUp.parNode.leftNode = nodeUp
 		} else {
 			nodeUp.parNode.rightNode = nodeUp
 		}
 	} else {
-		//if no parents then set the nodeUp as the new tree trunk
+		//If no parents then set the nodeUp as the new tree trunk
 		tr.trunk = nodeUp
 	}
 
-	//update effected heights
+	//Update effected heights
 	n.updateHeightAndHash()
 	nodeUp.updateHeightAndHash()
 
@@ -246,7 +262,7 @@ func (n *node) rotate(tr *AVLTree, left bool) {
 // Used for Testing Purposes
 /////////////////////////////
 
-//recursively add all the downstream
+//Recursively print the structure downstream of a node.
 func (n *node) printStructure() (out string) {
 
 	parkey, leftkey, rightkey := "nil", "nil", "nil"
