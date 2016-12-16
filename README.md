@@ -8,7 +8,7 @@ _Rudimentary AVL tree library implementation as a tendermint hiring task_
 
 To install use the following commands
 
-1. `go get github.com/rigelrozanski/AVL_tree`
+1. `go get github.com/rigelrozanski/AVL_Tree`
 2. `go get golang.org/x/crypto/sha3`
 
 ### Background
