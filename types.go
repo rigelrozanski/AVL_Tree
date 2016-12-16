@@ -1,9 +1,11 @@
 package AVL_Tree
 
 type Tree interface {
-	GetHash() (hash []byte)
+	GetHash() (hash []byte, err error)
 	Get(key []byte) (value []byte, err error)
-	Add(key []byte, value []byte) error
-	Update(key []byte, value []byte) error
+	Set(key, value []byte) error
+	Add(key, value []byte) error
+	Update(key, value []byte) error
 	Remove(key []byte) error
+	TreeStructure() string
 }

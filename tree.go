@@ -23,10 +23,16 @@ func NewAVLTree() AVLTree {
 	}
 }
 
+//errors used throughout
+var errEmptyTree error = errors.New("Empty tree")
+var errBadKey error = errors.New("Key not found")
+var errNodeNil error = errors.New("Node is nil")
+var errDupVal error = errors.New("Duplicate key found")
+
 //Returns the merkle root hash (hash of the trunk node)
 func (t *AVLTree) GetHash() (hash []byte, err error) {
 	if t.trunk == nil {
-		err = errors.New("empty tree")
+		err = errEmptyTree
 		return
 	}
 
@@ -38,14 +44,14 @@ func (t *AVLTree) GetHash() (hash []byte, err error) {
 //Get a value from the tree from an existing key
 func (t *AVLTree) Get(key []byte) (value []byte, err error) {
 	if t.trunk == nil {
-		err = errors.New("empty tree")
+		err = errEmptyTree
 		return
 	}
 
 	matchNode := t.trunk.findNode(key)
 
 	if matchNode == nil {
-		err = errors.New("key not found")
+		err = errBadKey
 	} else {
 		value = matchNode.value
 	}
@@ -53,16 +59,28 @@ func (t *AVLTree) Get(key []byte) (value []byte, err error) {
 	return
 }
 
+//Adds the value if it doesn't exist, if it exists in updates the value
+//The error should never realistically need to be used, but here for consistency
+func (t *AVLTree) Set(key, value []byte) error {
+	err := t.Add(key, value)
+	if err == errDupVal {
+		//should never produce an error is Update working properly
+		return t.Update(key, value)
+	} else {
+		return err
+	}
+}
+
 //Update a value from the tree for an already existing key
-func (t *AVLTree) Update(key []byte, value []byte) error {
+func (t *AVLTree) Update(key, value []byte) error {
 	if t.trunk == nil {
-		return errors.New("empty tree")
+		return errEmptyTree
 	}
 
 	matchNode := t.trunk.findNode(key)
 
 	if matchNode == nil {
-		return errors.New("key not found")
+		return errBadKey
 	}
 
 	matchNode.value = value
@@ -72,7 +90,7 @@ func (t *AVLTree) Update(key []byte, value []byte) error {
 }
 
 //Add a new key-value to the tree for a non-existent key
-func (t *AVLTree) Add(key []byte, value []byte) error {
+func (t *AVLTree) Add(key, value []byte) error {
 
 	if t.trunk == nil {
 		t.trunk = newNodeLeaf(nil, key, value)
@@ -100,12 +118,12 @@ func (t *AVLTree) Add(key []byte, value []byte) error {
 //Remove a key-value pair from the tree
 func (t *AVLTree) Remove(key []byte) error {
 	if t.trunk == nil {
-		return errors.New("empty tree")
+		return errEmptyTree
 	}
 
 	matchNode := t.trunk.findNode(key)
 	if matchNode == nil {
-		return errors.New("key not found")
+		return errBadKey
 	}
 
 	//Update height and balance before leaving
@@ -119,13 +137,12 @@ func (t *AVLTree) Remove(key []byte) error {
 		} else {
 			matchNode.parNode.rightNode = setTo
 		}
-
-		matchNode = setTo
 	}
 
 	//If leaf node being deleted, just delete it
 	if matchNode.height == 0 {
 		setParentsChild(nil)
+		matchNode = nil
 		return nil
 	}
 
@@ -133,9 +150,11 @@ func (t *AVLTree) Remove(key []byte) error {
 	//  then replace node with one branch node
 	if matchNode.rightNode == nil {
 		setParentsChild(matchNode.leftNode)
+		matchNode.leftNode.parNode = matchNode.parNode
 		return nil
 	} else if matchNode.leftNode == nil {
 		setParentsChild(matchNode.rightNode)
+		matchNode.rightNode.parNode = matchNode.parNode
 		return nil
 	}
 
@@ -169,4 +188,9 @@ func (t *AVLTree) Remove(key []byte) error {
 	}
 
 	return nil
+}
+
+//Returns the tree structure
+func (t *AVLTree) TreeStructure() string {
+	return t.trunk.outputStructure()
 }

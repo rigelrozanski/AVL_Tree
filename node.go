@@ -2,7 +2,6 @@ package AVL_Tree
 
 import (
 	"bytes"
-	"errors"
 
 	"golang.org/x/crypto/sha3"
 )
@@ -75,13 +74,13 @@ func (n *node) findNode(searchkey []byte) *node {
 func (n *node) findAddPosition(placeKey []byte) (leftChild bool, parNode *node, err error) {
 
 	if n == nil {
-		return false, n, errors.New("Node is nil")
+		return false, n, errNodeNil
 	}
 
 	//Compare(a,b) will be 0 if a==b, -1 if a < b, and +1 if a > b
 	switch bytes.Compare(placeKey, n.key) {
 	case 0:
-		return false, n, errors.New("Duplicate key found")
+		return false, n, errDupVal
 	case -1:
 		if n.leftNode == nil {
 			return true, n, nil
@@ -259,11 +258,11 @@ func (n *node) rotate(tr *AVLTree, left bool) {
 }
 
 /////////////////////////////
-// Used for Testing Purposes
+// Output
 /////////////////////////////
 
 //Recursively print the structure downstream of a node.
-func (n *node) printStructure() (out string) {
+func (n *node) outputStructure() (out string) {
 
 	parkey, leftkey, rightkey := "nil", "nil", "nil"
 
@@ -272,12 +271,12 @@ func (n *node) printStructure() (out string) {
 	}
 
 	if n.leftNode != nil {
-		out += n.leftNode.printStructure()
+		out += n.leftNode.outputStructure()
 		leftkey = string(n.leftNode.key[:])
 	}
 
 	if n.rightNode != nil {
-		out += n.rightNode.printStructure()
+		out += n.rightNode.outputStructure()
 		rightkey = string(n.rightNode.key[:])
 	}
 

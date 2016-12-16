@@ -4,7 +4,7 @@ import (
 	"testing"
 )
 
-func Testnode(t *testing.T) {
+func TestNode(t *testing.T) {
 
 	//Dummy tree for feeding into operations (normally used for replacing for swapping the trunk)
 	tr := NewAVLTree()
@@ -69,7 +69,7 @@ func Testnode(t *testing.T) {
 		if height != expectedHeight {
 			t.Errorf("bad height for %v, expected %v found %v ",
 				string(node.key[:]), expectedHeight, height)
-			t.Log(a.printStructure())
+			t.Log(a.outputStructure())
 		}
 
 		//test balance
@@ -77,23 +77,18 @@ func Testnode(t *testing.T) {
 		if bal != expectedBal {
 			t.Errorf("bad balance for %v, expected %v found %v ",
 				string(node.key[:]), expectedBal, bal)
-			t.Log(a.printStructure())
+			t.Log(a.outputStructure())
 		}
 	}
 
 	//Test a non-recursive height update
+	a.updateHeight()
+	heightBalanceTest(a, 1, 1) //height still 1 because b hasn't been updated
+
 	b.updateHeight()
-	heightBalanceTest(b, 1, 0) //Note the balance has not been updated so should still 0
-
-	//Test a non-recursive balance update
-	b.updateBalance(&tr)
 	heightBalanceTest(b, 1, 1)
-
-	//Test a recursive height update (from leaf to trunk)
-	c.updateHeightBalanceRecursive(&tr)
-	heightBalanceTest(c, 0, 0)
-	heightBalanceTest(b, 1, 1)
-	heightBalanceTest(a, 2, 2)
+	a.updateHeight()
+	heightBalanceTest(a, 2, 2) //height/balance now 2 because b has been updated
 
 	//Test rebalance to the expected position:
 	//    b

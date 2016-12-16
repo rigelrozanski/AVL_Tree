@@ -29,7 +29,7 @@ func TestAVLTree(t *testing.T) {
 		if bal != expdBalance {
 			t.Errorf("bad balance for %v, expected %v found %v ",
 				string(n.key[:]), expdBalance, bal)
-			t.Log(n.printStructure())
+			t.Log(n.outputStructure())
 		}
 
 		//Test height
@@ -37,7 +37,7 @@ func TestAVLTree(t *testing.T) {
 		if height != expdHeight {
 			t.Errorf("bad height for %v, expected %v found %v ",
 				string(n.key[:]), expdHeight, height)
-			t.Log(n.printStructure())
+			t.Log(n.outputStructure())
 		}
 	}
 
@@ -55,7 +55,7 @@ func TestAVLTree(t *testing.T) {
 		if bytes.Compare(key, expdTrunkKeyByte) != 0 {
 			t.Errorf("bad trunk key expected %v found %v ",
 				expdTrunkKeyByte, string(key[:]))
-			t.Log(tr.trunk.printStructure())
+			t.Log(tr.trunk.outputStructure())
 		}
 
 		heightBalanceSubTest(tr.trunk, expdHeight, expdBalance)
@@ -71,12 +71,12 @@ func TestAVLTree(t *testing.T) {
 			printErr(err)
 			if bytes.Compare(recievedVal, []byte(expectedVal)) != 0 {
 				t.Errorf("bad expected %v recieved %v ", expectedVal, string(recievedVal[:]))
-				t.Log(tr.trunk.printStructure())
+				t.Log(tr.trunk.outputStructure())
 			}
 		} else {
 			if err == nil {
 				t.Errorf("expected to receive an error when attempting to retrieve non-existent value for key %v", key)
-				t.Log(tr.trunk.printStructure())
+				t.Log(tr.trunk.outputStructure())
 			}
 		}
 	}
@@ -135,7 +135,7 @@ func TestAVLTree(t *testing.T) {
 	heightBalanceNodeTest("e", 0, 0)
 	heightBalanceNodeTest("g", 0, 0)
 
-	t.Log(tr.trunk.printStructure())
+	t.Log(tr.trunk.outputStructure())
 
 	//Test retrieving saved values
 	retrieveTest("a", "vA", true)
