@@ -17,12 +17,12 @@ The AVL Tree is data storage structure which allows for the efficient retrieval 
 
 ![N|Solid](https://upload.wikimedia.org/wikipedia/commons/thumb/a/ad/AVL-tree-wBalance_K.svg/262px-AVL-tree-wBalance_K.svg.png)
 
-Further readings:
-https://en.wikipedia.org/wiki/AVL_tree
-https://en.wikipedia.org/wiki/Binary_tree
-https://en.wikipedia.org/wiki/Merkle_tree
-https://www.tutorialspoint.com/data_structures_algorithms/avl_tree_algorithm.htm
-http://eniac.cs.qc.cuny.edu/andrew/csci700-11/lecture7.pdf
+Further readings:  
+https://en.wikipedia.org/wiki/AVL_tree  
+https://en.wikipedia.org/wiki/Binary_tree  
+https://en.wikipedia.org/wiki/Merkle_tree  
+https://www.tutorialspoint.com/data_structures_algorithms/avl_tree_algorithm.htm  
+http://eniac.cs.qc.cuny.edu/andrew/csci700-11/lecture7.pdf  
 
 
 ### Notes on Implementation
@@ -35,11 +35,11 @@ http://eniac.cs.qc.cuny.edu/andrew/csci700-11/lecture7.pdf
        - Generally handles micro management tasks of nodes including:
          - Searching through sub nodes for matching keys or insert position
          - Retrieving node balance
-         - performing node rotation
-         - performing rebalancing operations
-         - redefining the tree trunk when the uppermost node has changed
-         - recursively updating balance, height, and merkle-hash values 
-         - recursively outputting elements
+         - Performing node rotation
+         - Performing rebalancing operations
+         - Redefining the tree trunk when the uppermost node has changed
+         - Recursively updating balance, height, and merkle-hash values 
+         - Recursively outputting elements
     - tree.go
        - Defines the tree struct and tree type functions
        - Tree type methods are all exposed considered to be the main use functions of this library
