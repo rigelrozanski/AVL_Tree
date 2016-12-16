@@ -1,6 +1,6 @@
 # AVL\_Tree
 
-_Rudimentary AVL tree library implementation as a tendermint hiring task_
+_Rudimentary AVL Tree library implementation_
 
 ---
 
@@ -53,9 +53,9 @@ http://eniac.cs.qc.cuny.edu/andrew/csci700-11/lecture7.pdf
 
 ### Package Functions
 
-This basic implementation of an AVL tree allows add, update, and remove values. Demonstration usage 
+This basic implementation of an AVL Tree allows add, update, and remove values. Demonstration usage 
 of the library can be seen within the testing files (notably tree\_test.go). The exposed functions for 
-the AVL tree (listed within types.go) are as follows:
+the AVL Tree (listed within types.go) are as follows:
 
   - GetHash() (hash []byte, err error)
     - Returns the [Merkle][2] hash bytes for trunk node of the tree
@@ -80,7 +80,7 @@ the AVL tree (listed within types.go) are as follows:
 
 ### Example Usage Code
 
-The following code is a simple working usage example of the AVL\_tree package
+The following code is a simple working usage example of the AVL\_Tree package
 
 ~~~~
 package main
