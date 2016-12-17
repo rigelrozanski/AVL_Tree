@@ -107,7 +107,10 @@ func TestNode(t *testing.T) {
 
 	//Test rotation with updateBalance
 	setConfig1()
-	c.updateHeightBalanceRecursive(&tr)
+	c.updateHeight()
+	b.updateHeight()
+	a.updateHeight()
+	a.updateBalance(&tr)
 	testStructure()
 
 	//Test rotation with updateHeightBalanceRecursive
