@@ -36,7 +36,8 @@ http://eniac.cs.qc.cuny.edu/andrew/csci700-11/lecture7.pdf
          - Searching through sub nodes for matching keys or insert position
          - Retrieving node balance
          - Performing node rotation
-         - Performing rebalancing operations
+         - Performing rebalancing operations 
+         - Removing records and performing rearrangement task post-removal
          - Redefining the tree trunk when the uppermost node has changed
          - Recursively updating balance, height, and merkle-hash values 
          - Recursively outputting elements
@@ -44,10 +45,9 @@ http://eniac.cs.qc.cuny.edu/andrew/csci700-11/lecture7.pdf
        - Defines the tree struct and tree type functions
        - Tree type methods are all exposed considered to be the main use functions of this library
        - Generally handles macro tasks of the tree through piecing together node type functions
-         - Adding/Updating/Retrieving records to the tree
-         - Removing records and performing rearrangement task post-removal
-         - Printing the entire tree structure
   - One key facet of this implementation of AVL Tree is that each node contains awareness of not only its children nodes but also its parent node. By a node storing the address of its parent nodes, all operations that may cause an affect on the height, balance, and hash values can be calculated at the area of action and recursively recalculated upwards (leaf-to-trunk) thus minimizing the total number operations in comparison to requiring to recalculate height/balance/hash values for the entire tree after every relevant operation. For further thoughts this see [this link][1]
+  - Another important implementation feature is the use of placeholder nodes in all the empty children of 'real' nodes. Placeholder nodes are not considered is height or balance operations, there are effectively not considered by any tree calculations. Placeholder nodes serve the purpose of providing orientation information for new nodes that will be added to the tree which allows the use of the same method for either searching for an existing node to retrieve or searching for a placement position for when adding a new node.
+
 
 [1]: http://eniac.cs.qc.cuny.edu/andrew/csci700-11/lecture7.pdf
 
