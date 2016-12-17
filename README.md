@@ -75,6 +75,8 @@ the AVL Tree (listed within types.go) are as follows:
   - Remove(key []byte) error
     - Removes a key-value pair from the tree based on key input 
     - Generates an error if the key is non-existent within the tree
+  - TreeStructure() string
+    - Returns a string which lists all the tree's node: keys, values, and position
 
 [2]: https://en.wikipedia.org/wiki/Merkle_tree
 
